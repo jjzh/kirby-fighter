@@ -31,6 +31,21 @@ export class GameScene extends Phaser.Scene {
       this.fighterRenderers.push(new FighterRenderer(this, i));
     }
     this.hudRenderer = new HudRenderer(this, snap.fighters.length);
+
+    // Controls reference (shown at start, fades out)
+    const controlsP1 = this.add.text(20, 20,
+      'P1: WASD move | Space jump | J light | K heavy | L suck', {
+      fontSize: '12px', color: '#666666', fontFamily: 'monospace',
+    });
+    const controlsP2 = this.add.text(20, 36,
+      'P2: Arrows move | Shift jump | . light | , heavy | / suck', {
+      fontSize: '12px', color: '#666666', fontFamily: 'monospace',
+    });
+
+    // Fade out after 5 seconds
+    this.time.delayedCall(5000, () => {
+      this.tweens.add({ targets: [controlsP1, controlsP2], alpha: 0, duration: 1000 });
+    });
   }
 
   update(_time: number, delta: number): void {
