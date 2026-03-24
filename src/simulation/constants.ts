@@ -112,9 +112,9 @@ export const SUCK_MASH_TABLE = [
 ];
 
 export const SUCK_LAUNCH_SPEED_TABLE = [
-  { percent: 0, value: 8 },
-  { percent: 50, value: 14 },
-  { percent: 100, value: 20 },
+  { percent: 0, value: 5.6 },
+  { percent: 50, value: 9.8 },
+  { percent: 100, value: 14 },
 ];
 
 /** Linearly interpolate a scaling table by damage percent */
