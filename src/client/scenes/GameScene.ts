@@ -62,11 +62,11 @@ export class GameScene extends Phaser.Scene {
     if (!this.isTouchDevice) {
       const controlsP1 = this.add.text(20, 20,
         'P1: WASD move | Space jump | J light | K heavy | L suck', {
-        fontSize: '12px', color: '#666666', fontFamily: 'monospace',
+        fontSize: '12px', color: '#FFFFFF', fontFamily: 'monospace',
       });
       const controlsP2 = this.add.text(20, 36,
         'P2: Arrows move | Shift jump | . light | , heavy | / suck', {
-        fontSize: '12px', color: '#666666', fontFamily: 'monospace',
+        fontSize: '12px', color: '#FFFFFF', fontFamily: 'monospace',
       });
       uiExtras.push(controlsP1, controlsP2);
 
