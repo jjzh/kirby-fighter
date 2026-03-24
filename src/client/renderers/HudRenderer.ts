@@ -2,6 +2,17 @@ import Phaser from 'phaser';
 import type { SimulationSnapshot } from '@simulation/types';
 import { PLAYER_COLORS, CANVAS_W, CANVAS_H } from '@simulation/constants';
 
+/** Read CSS env safe area inset for landscape notch/dynamic island */
+function getSafeAreaTop(): number {
+  const val = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)');
+  return parseInt(val, 10) || 0;
+}
+
+function getSafeAreaLeft(): number {
+  const val = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-left)');
+  return parseInt(val, 10) || 0;
+}
+
 interface PlayerHud {
   damageText: Phaser.GameObjects.Text;
   stockDots: Phaser.GameObjects.Ellipse[];
@@ -11,8 +22,13 @@ interface PlayerHud {
 export class HudRenderer {
   private playerHuds: PlayerHud[] = [];
   private matchText: Phaser.GameObjects.Text;
+  private scene: Phaser.Scene;
+  private playerCount: number;
 
   constructor(scene: Phaser.Scene, playerCount: number) {
+    this.scene = scene;
+    this.playerCount = playerCount;
+
     const hudY = 45;
     const sectionWidth = CANVAS_W / playerCount;
 
@@ -24,14 +40,14 @@ export class HudRenderer {
         fontSize: '14px',
         color: colorStr,
         fontFamily: 'monospace',
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(200);
 
       const damageText = scene.add.text(centerX, hudY + 5, '0%', {
         fontSize: '32px',
         color: '#FFFFFF',
         fontFamily: 'monospace',
         fontStyle: 'bold',
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(200);
 
       // Stock dots
       const stockDots: Phaser.GameObjects.Ellipse[] = [];
@@ -39,7 +55,7 @@ export class HudRenderer {
         const dot = scene.add.ellipse(
           centerX - 15 + s * 15, hudY + 30, 8, 8,
           PLAYER_COLORS[i]
-        );
+        ).setScrollFactor(0).setDepth(200);
         stockDots.push(dot);
       }
 
@@ -54,7 +70,33 @@ export class HudRenderer {
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 4,
-    }).setOrigin(0.5).setVisible(false);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(200).setVisible(false);
+
+    // Reposition on resize for mobile safe areas
+    scene.scale.on('resize', () => this.repositionForSafeArea());
+    this.repositionForSafeArea();
+  }
+
+  /** Adjust HUD positions for mobile landscape safe area (notch/dynamic island) */
+  private repositionForSafeArea(): void {
+    const isMobile = this.scene.sys.game.device.input.touch;
+    if (!isMobile) return;
+
+    const safeTop = getSafeAreaTop();
+    const safeLeft = getSafeAreaLeft();
+    const hudY = Math.max(45, 10 + safeTop);
+    const sectionWidth = CANVAS_W / this.playerCount;
+
+    for (let i = 0; i < this.playerHuds.length; i++) {
+      const hud = this.playerHuds[i];
+      const centerX = safeLeft + sectionWidth * i + sectionWidth / 2;
+
+      hud.nameText.setPosition(centerX, hudY - 20);
+      hud.damageText.setPosition(centerX, hudY + 5);
+      for (let s = 0; s < hud.stockDots.length; s++) {
+        hud.stockDots[s].setPosition(centerX - 15 + s * 15, hudY + 30);
+      }
+    }
   }
 
   getGameObjects(): Phaser.GameObjects.GameObject[] {
