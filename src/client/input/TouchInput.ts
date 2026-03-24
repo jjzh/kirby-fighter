@@ -3,7 +3,7 @@ import { type InputState, NULL_INPUT } from '@simulation/types';
 
 // -- Joystick layout --
 const JOYSTICK_X = 130;
-const JOYSTICK_Y = 590;
+const JOYSTICK_Y = 530;
 const JOYSTICK_DEADZONE = 28;
 const JOYSTICK_MAX_RADIUS = 112;
 const JOYSTICK_ZONE_RIGHT = 500; // left portion of screen is joystick zone
@@ -14,7 +14,7 @@ const SECONDARY_RADIUS = 48;
 const FAN_DISTANCE = 150;
 
 const PRIMARY_X = 1180;
-const PRIMARY_Y = 620;
+const PRIMARY_Y = 560;
 
 const BUTTON_ALPHA = 0.3;
 const BUTTON_PRESSED_ALPHA = 0.6;
