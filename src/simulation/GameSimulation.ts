@@ -2,7 +2,7 @@ import { Fighter } from './Fighter';
 import { Stage } from './Stage';
 import {
   type InputState, type MatchConfig, type StageConfig,
-  type SimulationSnapshot, NULL_INPUT, FighterAction, MatchPhase, AttackPhase,
+  type SimulationSnapshot, type HitEvent, NULL_INPUT, FighterAction, MatchPhase, AttackPhase,
 } from './types';
 import { RESPAWN_INVINCIBILITY_FRAMES, RESPAWN_X, RESPAWN_Y, FIGHTER_W, FIGHTER_H } from './constants';
 import { applyGravity, processMovement, processJump } from './movement';
@@ -10,7 +10,12 @@ import {
   processAttack, tickAttack, tickHitstun,
   getAttackPhase, getAttackHitbox, getHurtbox, checkHitboxOverlap,
   getAttackData, calculateKnockback, applyKnockback, getAimDirection,
+  processCrushAttack, tickCrushAttack, tickCrushRecovery,
+  isCrushActive, getCrushHitbox,
 } from './combat';
+import {
+  CRUSH_DAMAGE, CRUSH_BASE_KNOCKBACK, CRUSH_KNOCKBACK_SCALING,
+} from './constants';
 import {
   processInhale, startCapture, processCapture,
   releaseCapture, launchProjectile, tickProjectile,
@@ -24,6 +29,7 @@ export class GameSimulation {
   private winnerIndex = -1;
   private frameNumber = 0;
   private hitThisAttack: Set<string> = new Set();
+  private hitEvents: HitEvent[] = [];
 
   constructor(matchConfig: MatchConfig, stageConfig: StageConfig) {
     this.stage = new Stage(stageConfig);
@@ -65,10 +71,12 @@ export class GameSimulation {
 
       if (fighter.action !== FighterAction.CaptureHold &&
           fighter.action !== FighterAction.Inhale &&
-          fighter.action !== FighterAction.Projectile) {
+          fighter.action !== FighterAction.Projectile &&
+          fighter.action !== FighterAction.CrushAttack) {
         processAttack(fighter, input);
       }
 
+      processCrushAttack(fighter, input);
       processJump(fighter, input, this.stage);
 
       if (fighter.suck.capturedBy < 0 && fighter.action !== FighterAction.Projectile) {
@@ -81,17 +89,21 @@ export class GameSimulation {
 
       tickProjectile(fighter);
       tickAttack(fighter);
+      tickCrushAttack(fighter);
       fighter.tickActionFrame();
       tickHitstun(fighter);
+      tickCrushRecovery(fighter);
 
       fighter.prevJumpPressed = input.jump;
       fighter.prevLightPressed = input.light;
       fighter.prevHeavyPressed = input.heavy;
       fighter.prevSuckPressed = input.suck;
+      fighter.prevDownPressed = input.down;
     }
 
     this.resolveBodyCollisions();
     this.resolveAttackHits(inputs);
+    this.resolveCrushHits();
     this.resolveProjectileHits();
     this.checkBlastZones();
     this.checkWinCondition();
@@ -179,6 +191,51 @@ export class GameSimulation {
           );
           applyKnockback(defender, knockbackMag, aimDir);
           this.hitThisAttack.add(hitKey);
+          this.hitEvents.push({
+            x: (hitbox.x + hurtbox.x) / 2,
+            y: (hitbox.y + hurtbox.y) / 2,
+            attackerIndex: attackerIdx,
+            defenderIndex: defenderIdx,
+          });
+        }
+      }
+    }
+  }
+
+  private resolveCrushHits(): void {
+    for (let attackerIdx = 0; attackerIdx < this.fighters.length; attackerIdx++) {
+      const attacker = this.fighters[attackerIdx];
+      if (!isCrushActive(attacker)) continue;
+
+      const hitbox = getCrushHitbox(attacker);
+
+      for (let defenderIdx = 0; defenderIdx < this.fighters.length; defenderIdx++) {
+        if (attackerIdx === defenderIdx) continue;
+        const hitKey = `${attackerIdx}-${defenderIdx}`;
+        if (this.hitThisAttack.has(hitKey)) continue;
+
+        const defender = this.fighters[defenderIdx];
+        if (defender.action === FighterAction.Dead) continue;
+        if (defender.invincibleFrames > 0) continue;
+        if (defender.suck.capturedBy >= 0) continue;
+
+        const hurtbox = getHurtbox(defender);
+        if (checkHitboxOverlap(hitbox, hurtbox)) {
+          defender.damage += CRUSH_DAMAGE;
+          const knockbackMag = calculateKnockback(
+            CRUSH_BASE_KNOCKBACK, CRUSH_KNOCKBACK_SCALING, defender.damage
+          );
+          const dx = defender.x > attacker.x ? 0.3 : -0.3;
+          const dy = 0.95;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          applyKnockback(defender, knockbackMag, { x: dx / len, y: dy / len });
+          this.hitThisAttack.add(hitKey);
+          this.hitEvents.push({
+            x: (hitbox.x + hurtbox.x) / 2,
+            y: (hitbox.y + hurtbox.y) / 2,
+            attackerIndex: attackerIdx,
+            defenderIndex: defenderIdx,
+          });
         }
       }
     }
@@ -193,6 +250,12 @@ export class GameSimulation {
         if (projIdx === targetIdx) continue;
         const target = this.fighters[targetIdx];
         if (checkProjectileImpact(projectile, target)) {
+          this.hitEvents.push({
+            x: (projectile.x + target.x) / 2,
+            y: (projectile.y + target.y) / 2,
+            attackerIndex: projIdx,
+            defenderIndex: targetIdx,
+          });
           applyProjectileImpact(projectile, target);
           break;
         }
@@ -282,8 +345,11 @@ export class GameSimulation {
   }
 
   getSnapshot(): SimulationSnapshot {
+    const events = this.hitEvents;
+    this.hitEvents = [];
     return {
       fighters: this.fighters.map(f => f.snapshot()),
+      hitEvents: events,
       matchPhase: this.matchPhase,
       winnerIndex: this.winnerIndex,
       frameNumber: this.frameNumber,

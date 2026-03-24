@@ -8,6 +8,8 @@ const config: Phaser.Types.Core.GameConfig = {
   width: CANVAS_W,
   height: CANVAS_H,
   backgroundColor: '#0f0f23',
+  pixelArt: true,
+  antialias: false,
   parent: document.body,
   scene: [GameScene, ResultScene],
 };

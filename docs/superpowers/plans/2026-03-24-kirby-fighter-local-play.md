@@ -335,7 +335,7 @@ export const CANVAS_H = 720;
 export const STAGE: StageConfig = {
   groundLeft: 200,
   groundRight: 1080,
-  groundY: 580,
+  groundY: 100,
   blastZone: {
     left: -100,
     right: 1380,

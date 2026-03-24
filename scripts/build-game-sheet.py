@@ -62,6 +62,9 @@ animations = {
     "dead": [
         (9, 0), (9, 1),  # KO tumble
     ],
+    "fire": [
+        (19, 5), (19, 0), (19, 2), (19, 4),  # Flame burst sequence (hit impact)
+    ],
 }
 
 # Calculate total frames and layout

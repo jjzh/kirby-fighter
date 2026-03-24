@@ -5,6 +5,7 @@ import {
   GRAVITY, MAX_FALL_SPEED, RUN_SPEED, AIR_SPEED,
   JUMP_VELOCITY, DOUBLE_JUMP_VELOCITY,
 } from './constants';
+import { onCrushLanding } from './combat';
 
 const GROUNDED_ACTIONS = new Set([
   FighterAction.Idle,
@@ -17,6 +18,7 @@ const GROUNDED_ACTIONS = new Set([
 
 /** Apply gravity to a fighter. Only affects airborne/projectile states. */
 export function applyGravity(fighter: Fighter): void {
+  if (fighter.action === FighterAction.CrushAttack) return;
   if (!GROUNDED_ACTIONS.has(fighter.action) || fighter.velocityY !== 0) {
     fighter.velocityY = Math.min(fighter.velocityY + GRAVITY, MAX_FALL_SPEED);
   }
@@ -27,6 +29,7 @@ export function processMovement(fighter: Fighter, input: InputState, stage: Stag
   const isGrounded = GROUNDED_ACTIONS.has(fighter.action) && fighter.velocityY === 0;
   const isInAction = fighter.action === FighterAction.AttackLight ||
                      fighter.action === FighterAction.AttackHeavy ||
+                     fighter.action === FighterAction.CrushAttack ||
                      fighter.action === FighterAction.Hitstun ||
                      fighter.action === FighterAction.Projectile;
 
@@ -57,7 +60,9 @@ export function processMovement(fighter: Fighter, input: InputState, stage: Stag
     fighter.velocityY = 0;
     fighter.doubleJumpUsed = false;
 
-    if (fighter.action === FighterAction.Airborne) {
+    if (fighter.action === FighterAction.CrushAttack) {
+      onCrushLanding(fighter);
+    } else if (fighter.action === FighterAction.Airborne) {
       fighter.setAction(fighter.velocityX !== 0 ? FighterAction.Run : FighterAction.Idle);
     }
   } else if (!stage.isOnGround(fighter.x, fighter.y) && isGrounded) {

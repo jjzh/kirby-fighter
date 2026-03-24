@@ -6,9 +6,9 @@ export const CANVAS_H = 720;
 
 // -- Stage --
 export const STAGE: StageConfig = {
-  groundLeft: 200,
-  groundRight: 1080,
-  groundY: 580,
+  groundLeft: 150,
+  groundRight: 1130,
+  groundY: 480,
   blastZone: {
     left: -100,
     right: 1380,
@@ -55,6 +55,16 @@ export const HEAVY_KNOCKBACK_SCALING = 0.15;
 export const HEAVY_HITBOX_W = 50;
 export const HEAVY_HITBOX_H = 35;
 export const HEAVY_HITBOX_OFFSET_X = 30;
+
+// -- Crush Attack (Ground Pound) --
+export const CRUSH_STARTUP_FRAMES = 10;
+export const CRUSH_FALL_SPEED = 18;
+export const CRUSH_DAMAGE = 12;
+export const CRUSH_BASE_KNOCKBACK = 7;
+export const CRUSH_KNOCKBACK_SCALING = 0.12;
+export const CRUSH_HITBOX_W = 44;
+export const CRUSH_HITBOX_H = 30;
+export const CRUSH_LANDING_RECOVERY_FRAMES = 15;
 
 // -- Knockback --
 export const HITSTUN_MULTIPLIER = 3;

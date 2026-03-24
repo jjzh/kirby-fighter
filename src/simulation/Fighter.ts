@@ -31,6 +31,7 @@ export class Fighter {
   prevLightPressed = false;
   prevHeavyPressed = false;
   prevSuckPressed = false;
+  prevDownPressed = false;
 
   constructor(colorIndex: number, x: number, y: number, stocks = DEFAULT_MATCH.stocks) {
     this.colorIndex = colorIndex;

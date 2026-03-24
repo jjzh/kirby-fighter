@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { GameSimulation } from '@simulation/GameSimulation';
 import { STAGE, DEFAULT_MATCH } from '@simulation/constants';
-import { type InputState, NULL_INPUT } from '@simulation/types';
 import { StageRenderer } from '../renderers/StageRenderer';
 import { FighterRenderer } from '../renderers/FighterRenderer';
 import { HudRenderer } from '../renderers/HudRenderer';
@@ -16,12 +15,17 @@ export class GameScene extends Phaser.Scene {
   private hudRenderer!: HudRenderer;
   private keyboardInput!: KeyboardInput;
   private accumulator = 0;
+  private ost?: Phaser.Sound.BaseSound;
 
   constructor() {
     super('GameScene');
   }
 
   preload(): void {
+    this.load.image('arena-bg', 'assets/arena-bg.png');
+    this.load.audio('ost', 'assets/audio/ost.mp3');
+    this.load.audio('sfx_punch', 'assets/sfx/punch.mp3');
+    this.load.audio('sfx_punch_alt', 'assets/sfx/punch_alt.mp3');
     this.load.atlas(
       'fighter-kirby',
       'assets/fighter-kirby.png',
@@ -40,20 +44,17 @@ export class GameScene extends Phaser.Scene {
     }
     this.hudRenderer = new HudRenderer(this, snap.fighters.length);
 
-    // Controls reference (shown at start, fades out)
-    const controlsP1 = this.add.text(20, 20,
-      'P1: WASD move | Space jump | J light | K heavy | L suck', {
-      fontSize: '12px', color: '#666666', fontFamily: 'monospace',
-    });
-    const controlsP2 = this.add.text(20, 36,
-      'P2: Arrows move | Shift jump | . light | , heavy | / suck', {
-      fontSize: '12px', color: '#666666', fontFamily: 'monospace',
-    });
-
-    // Fade out after 5 seconds
-    this.time.delayedCall(5000, () => {
-      this.tweens.add({ targets: [controlsP1, controlsP2], alpha: 0, duration: 1000 });
-    });
+    this.ost = this.sound.get('ost') ?? this.sound.add('ost', { loop: true, volume: 0.35 });
+    this.ost.setLoop(true);
+    this.ost.setVolume(0.35);
+    const startOst = () => {
+      if (!this.ost || this.ost.isPlaying) return;
+      this.ost.play();
+    };
+    startOst();
+    this.sound.once(Phaser.Sound.Events.UNLOCKED, startOst);
+    this.input.once(Phaser.Input.Events.POINTER_DOWN, startOst);
+    this.input.keyboard?.once(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, startOst);
   }
 
   update(_time: number, delta: number): void {
@@ -69,6 +70,9 @@ export class GameScene extends Phaser.Scene {
     const snap = this.simulation.getSnapshot();
     for (let i = 0; i < snap.fighters.length; i++) {
       this.fighterRenderers[i].update(snap.fighters[i]);
+    }
+    for (const hit of snap.hitEvents) {
+      FighterRenderer.spawnHitEffect(this, hit.x, hit.y);
     }
     this.hudRenderer.update(snap);
 

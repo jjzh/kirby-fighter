@@ -26,25 +26,25 @@ describe('Stage', () => {
   });
 
   it('reports grounded when at ground Y', () => {
-    expect(stage.isOnGround(500, 580)).toBe(true);
+    expect(stage.isOnGround(500, STAGE.groundY)).toBe(true);
   });
 
   it('reports grounded when below ground Y', () => {
-    expect(stage.isOnGround(500, 590)).toBe(true);
+    expect(stage.isOnGround(500, STAGE.groundY + 10)).toBe(true);
   });
 
   it('reports not grounded when above ground', () => {
-    expect(stage.isOnGround(500, 500)).toBe(false);
+    expect(stage.isOnGround(500, STAGE.groundY - 1)).toBe(false);
   });
 
   it('reports not grounded when past stage edges (walking off)', () => {
-    expect(stage.isOnGround(100, 580)).toBe(false);
-    expect(stage.isOnGround(1200, 580)).toBe(false);
+    expect(stage.isOnGround(STAGE.groundLeft - 1, STAGE.groundY)).toBe(false);
+    expect(stage.isOnGround(STAGE.groundRight + 1, STAGE.groundY)).toBe(false);
   });
 
   it('clamps Y to ground level', () => {
-    expect(stage.clampToGround(500, 600)).toBe(580);
-    expect(stage.clampToGround(500, 580)).toBe(580);
+    expect(stage.clampToGround(500, STAGE.groundY + 20)).toBe(STAGE.groundY);
+    expect(stage.clampToGround(500, STAGE.groundY)).toBe(STAGE.groundY);
     expect(stage.clampToGround(500, 400)).toBe(400);
   });
 });

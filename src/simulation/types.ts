@@ -26,6 +26,7 @@ export enum FighterAction {
   Airborne = 'airborne',
   AttackLight = 'attack_light',
   AttackHeavy = 'attack_heavy',
+  CrushAttack = 'crush_attack',
   Inhale = 'inhale',
   CaptureHold = 'capture_hold',
   Projectile = 'projectile',
@@ -82,8 +83,16 @@ export enum MatchPhase {
   Ended = 'ended',
 }
 
+export interface HitEvent {
+  x: number;
+  y: number;
+  attackerIndex: number;
+  defenderIndex: number;
+}
+
 export interface SimulationSnapshot {
   fighters: FighterSnapshot[];
+  hitEvents: HitEvent[];
   matchPhase: MatchPhase;
   winnerIndex: number; // -1 if no winner yet
   frameNumber: number;

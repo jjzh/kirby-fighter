@@ -8,6 +8,8 @@ import {
   HEAVY_DAMAGE, HEAVY_BASE_KNOCKBACK, HEAVY_KNOCKBACK_SCALING,
   HEAVY_HITBOX_W, HEAVY_HITBOX_H, HEAVY_HITBOX_OFFSET_X,
   HITSTUN_MULTIPLIER, FIGHTER_H,
+  CRUSH_STARTUP_FRAMES, CRUSH_FALL_SPEED,
+  CRUSH_HITBOX_W, CRUSH_HITBOX_H, CRUSH_LANDING_RECOVERY_FRAMES,
 } from './constants';
 
 export interface Rect {
@@ -167,4 +169,54 @@ export function tickHitstun(fighter: Fighter): void {
 
 export function getAttackData(type: string): AttackData {
   return ATTACK_DATA[type];
+}
+
+// ── Crush Attack (Ground Pound) ──────────────────────────────────────
+
+export function processCrushAttack(fighter: Fighter, input: InputState): void {
+  if (fighter.action !== FighterAction.Airborne) return;
+
+  const downJustPressed = input.down && !fighter.prevDownPressed;
+  if (!downJustPressed) return;
+
+  fighter.setAction(FighterAction.CrushAttack);
+  fighter.velocityX = 0;
+  fighter.velocityY = 0;
+}
+
+export function tickCrushAttack(fighter: Fighter): void {
+  if (fighter.action !== FighterAction.CrushAttack) return;
+
+  if (fighter.actionFrame === CRUSH_STARTUP_FRAMES) {
+    fighter.velocityY = CRUSH_FALL_SPEED;
+  }
+}
+
+export function onCrushLanding(fighter: Fighter): void {
+  fighter.velocityX = 0;
+  fighter.velocityY = 0;
+}
+
+export function tickCrushRecovery(fighter: Fighter): void {
+  if (fighter.action !== FighterAction.CrushAttack) return;
+  if (fighter.velocityY !== 0 || fighter.actionFrame < CRUSH_STARTUP_FRAMES) return;
+
+  const landingFrame = fighter.actionFrame - CRUSH_STARTUP_FRAMES;
+  if (landingFrame >= CRUSH_LANDING_RECOVERY_FRAMES) {
+    fighter.setAction(FighterAction.Idle);
+  }
+}
+
+export function getCrushHitbox(fighter: Fighter): Rect {
+  return {
+    x: fighter.x,
+    y: fighter.y - 5,
+    w: CRUSH_HITBOX_W,
+    h: CRUSH_HITBOX_H,
+  };
+}
+
+export function isCrushActive(fighter: Fighter): boolean {
+  return fighter.action === FighterAction.CrushAttack &&
+         fighter.actionFrame >= CRUSH_STARTUP_FRAMES;
 }
