@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import { FighterAction, type FighterSnapshot } from '@simulation/types';
-import { PLAYER_COLORS, FIGHTER_H } from '@simulation/constants';
+import { FighterAction, AttackPhase, type FighterSnapshot } from '@simulation/types';
+import { PLAYER_COLORS, FIGHTER_H, FIGHTER_W } from '@simulation/constants';
+import { getAttackHitbox, getAttackPhase, getHurtbox, type Rect } from '@simulation/combat';
+import { Fighter } from '@simulation/Fighter';
 
 /** Map FighterAction to spritesheet animation name */
 function getAnimName(action: FighterAction, velocityY: number): string {
@@ -29,8 +31,10 @@ const PLAYER_TINTS = [
 
 export class FighterRenderer {
   private sprite: Phaser.GameObjects.Sprite;
+  private debugGfx: Phaser.GameObjects.Graphics;
   private currentAnim = '';
   private index: number;
+  static showHitboxes = true;
 
   constructor(scene: Phaser.Scene, index: number) {
     this.index = index;
@@ -38,6 +42,10 @@ export class FighterRenderer {
     // Create sprite from atlas
     this.sprite = scene.add.sprite(0, 0, 'fighter-kirby', 'idle_0');
     this.sprite.setTint(PLAYER_TINTS[index] ?? 0xFFFFFF);
+
+    // Debug hitbox overlay
+    this.debugGfx = scene.add.graphics();
+    this.debugGfx.setDepth(100);
 
     // Create all animations (only once, first renderer creates them)
     if (!scene.anims.exists('kirby_idle')) {
@@ -128,5 +136,45 @@ export class FighterRenderer {
       this.currentAnim = animName;
       this.sprite.play(animName);
     }
+
+    // Debug hitbox visualization
+    this.debugGfx.clear();
+    if (!FighterRenderer.showHitboxes) return;
+
+    // Build a temporary Fighter to use combat.ts query functions
+    const tempFighter = new Fighter(state.colorIndex, state.x, state.y);
+    tempFighter.facingRight = state.facingRight;
+    tempFighter.action = state.action;
+    tempFighter.actionFrame = state.actionFrame;
+
+    // Hurtbox — green outline
+    const hurtbox = getHurtbox(tempFighter);
+    this.debugGfx.lineStyle(1, 0x00FF00, 0.5);
+    this.drawRect(hurtbox);
+
+    // Attack hitbox — red fill when active, yellow outline during startup
+    const phase = getAttackPhase(tempFighter);
+    if (phase !== null) {
+      const attackType = state.action === FighterAction.AttackLight ? 'light' : 'heavy';
+      const hitbox = getAttackHitbox(tempFighter, attackType);
+
+      if (phase === AttackPhase.Active) {
+        this.debugGfx.fillStyle(0xFF0000, 0.3);
+        this.fillRect(hitbox);
+        this.debugGfx.lineStyle(2, 0xFF0000, 0.8);
+        this.drawRect(hitbox);
+      } else if (phase === AttackPhase.Startup) {
+        this.debugGfx.lineStyle(1, 0xFFFF00, 0.4);
+        this.drawRect(hitbox);
+      }
+    }
+  }
+
+  private drawRect(r: Rect): void {
+    this.debugGfx.strokeRect(r.x - r.w / 2, r.y - r.h / 2, r.w, r.h);
+  }
+
+  private fillRect(r: Rect): void {
+    this.debugGfx.fillRect(r.x - r.w / 2, r.y - r.h / 2, r.w, r.h);
   }
 }
