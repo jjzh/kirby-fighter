@@ -35,6 +35,7 @@ export class FighterRenderer {
   private bottomPadCache = new Map<string, number>();
   private suckLineTimer = 0;
   private lastAttackSfxFrame = -1;
+  private suckWhoosh?: Phaser.Sound.BaseSound;
 
   constructor(scene: Phaser.Scene, index: number) {
     this.scene = scene;
@@ -48,6 +49,12 @@ export class FighterRenderer {
     if (!scene.anims.exists('kirby_idle')) {
       this.createAnimations(scene);
     }
+
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.suckWhoosh?.stop();
+      this.suckWhoosh?.destroy();
+      this.suckWhoosh = undefined;
+    });
   }
 
   private createAnimations(scene: Phaser.Scene): void {
@@ -121,11 +128,18 @@ export class FighterRenderer {
 
     // Inhale wind lines
     if (state.action === FighterAction.Inhale) {
+      this.ensureSuckWhoosh();
+      if (this.suckWhoosh && !this.suckWhoosh.isPlaying) {
+        this.suckWhoosh.play();
+      }
       this.suckLineTimer++;
       if (this.suckLineTimer % 3 === 0) {
         this.emitSuckLines(state.x, state.y - FIGHTER_H / 2, state.facingRight);
       }
     } else {
+      if (this.suckWhoosh?.isPlaying) {
+        this.suckWhoosh.stop();
+      }
       this.suckLineTimer = 0;
     }
 
@@ -176,6 +190,13 @@ export class FighterRenderer {
     const keys = ['sfx_punch', 'sfx_punch_alt'] as const;
     const key = keys[Math.floor(Math.random() * keys.length)];
     this.scene.sound.play(key, { volume: 0.6 });
+  }
+
+  private ensureSuckWhoosh(): void {
+    if (this.suckWhoosh && !this.suckWhoosh.isDestroyed) return;
+    this.suckWhoosh = this.scene.sound.add('sfx_suck_whoosh', { loop: true, volume: 0.25 });
+    this.suckWhoosh.setLoop(true);
+    this.suckWhoosh.setVolume(0.25);
   }
 
   /** Spawn expanding crescent arcs at the fighter's feet */

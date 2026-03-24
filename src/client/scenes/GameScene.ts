@@ -26,6 +26,7 @@ export class GameScene extends Phaser.Scene {
     this.load.audio('ost', 'assets/audio/ost.mp3');
     this.load.audio('sfx_punch', 'assets/sfx/punch.mp3');
     this.load.audio('sfx_punch_alt', 'assets/sfx/punch_alt.mp3');
+    this.load.audio('sfx_suck_whoosh', 'assets/sfx/suck_whoosh.mp3');
     this.load.atlas(
       'fighter-kirby',
       'assets/fighter-kirby.png',
