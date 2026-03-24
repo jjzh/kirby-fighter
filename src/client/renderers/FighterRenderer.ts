@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { FighterAction, AttackPhase, type FighterSnapshot } from '@simulation/types';
-import { FIGHTER_H, FIGHTER_W, INHALE_CONE_HALF_ANGLE, INHALE_MIN_RANGE, INHALE_MAX_RANGE, INHALE_RAMP_FRAMES, SUCK_RANGE_TABLE } from '@simulation/constants';
+import { PLAYER_COLORS, FIGHTER_H, FIGHTER_W, INHALE_CONE_HALF_ANGLE, INHALE_MIN_RANGE, INHALE_MAX_RANGE, INHALE_RAMP_FRAMES, SUCK_RANGE_TABLE, SUCK_SHIELD_MAX } from '@simulation/constants';
 import { getAttackHitbox, getAttackPhase, getHurtbox, type Rect } from '@simulation/combat';
 import { Fighter } from '@simulation/Fighter';
 
@@ -31,9 +31,16 @@ const PLAYER_TINTS = [
   0xFFFF66, // P4: yellow tint
 ];
 
+// Shield bar config
+const SHIELD_SEG_W = 6;
+const SHIELD_SEG_H = 3;
+const SHIELD_SEG_GAP = 1;
+const SHIELD_BAR_Y_OFFSET = -8; // above the sprite top
+
 export class FighterRenderer {
   private sprite: Phaser.GameObjects.Sprite;
   private debugGfx: Phaser.GameObjects.Graphics;
+  private shieldSegments: Phaser.GameObjects.Rectangle[] = [];
   private currentAnim = '';
   private index: number;
   static showHitboxes = true;
@@ -44,6 +51,13 @@ export class FighterRenderer {
     // Create sprite from atlas
     this.sprite = scene.add.sprite(0, 0, 'fighter-kirby', 'idle_0');
     this.sprite.setTint(PLAYER_TINTS[index] ?? 0xFFFFFF);
+
+    // Shield bar segments (positioned each frame in update)
+    for (let s = 0; s < SUCK_SHIELD_MAX; s++) {
+      const seg = scene.add.rectangle(0, 0, SHIELD_SEG_W, SHIELD_SEG_H, PLAYER_COLORS[index]);
+      seg.setDepth(200);
+      this.shieldSegments.push(seg);
+    }
 
     this.debugGfx = scene.add.graphics();
     this.debugGfx.setDepth(100);
@@ -80,12 +94,13 @@ export class FighterRenderer {
   }
 
   getGameObjects(): Phaser.GameObjects.GameObject[] {
-    return [this.sprite, this.debugGfx];
+    return [this.sprite, ...this.shieldSegments, this.debugGfx];
   }
 
   update(state: FighterSnapshot): void {
     if (state.action === FighterAction.Dead && state.stocks <= 0) {
       this.sprite.setVisible(false);
+      for (const seg of this.shieldSegments) seg.setVisible(false);
       return;
     }
 
@@ -93,6 +108,22 @@ export class FighterRenderer {
 
     // Position — sprite origin is center, state.y is feet
     this.sprite.setPosition(state.x, state.y - FIGHTER_H / 2);
+
+    // Shield bar — floating above the fighter
+    const totalW = SUCK_SHIELD_MAX * SHIELD_SEG_W + (SUCK_SHIELD_MAX - 1) * SHIELD_SEG_GAP;
+    const barStartX = state.x - totalW / 2;
+    const barY = state.y - FIGHTER_H + SHIELD_BAR_Y_OFFSET;
+    for (let s = 0; s < this.shieldSegments.length; s++) {
+      const seg = this.shieldSegments[s];
+      seg.setPosition(
+        barStartX + s * (SHIELD_SEG_W + SHIELD_SEG_GAP) + SHIELD_SEG_W / 2,
+        barY
+      );
+      seg.setFillStyle(
+        state.suckShield > s ? PLAYER_COLORS[this.index] : 0x333333
+      );
+      seg.setVisible(state.suck.capturedBy < 0); // hide when captured
+    }
 
     // Facing direction — flip sprite horizontally
     this.sprite.setFlipX(!state.facingRight);

@@ -1,10 +1,9 @@
 import Phaser from 'phaser';
 import type { SimulationSnapshot } from '@simulation/types';
-import { PLAYER_COLORS, CANVAS_W, CANVAS_H, SUCK_SHIELD_MAX } from '@simulation/constants';
+import { PLAYER_COLORS, CANVAS_W, CANVAS_H } from '@simulation/constants';
 
 interface PlayerHud {
   damageText: Phaser.GameObjects.Text;
-  shieldSegments: Phaser.GameObjects.Rectangle[];
   stockDots: Phaser.GameObjects.Ellipse[];
   nameText: Phaser.GameObjects.Text;
 }
@@ -34,34 +33,17 @@ export class HudRenderer {
         fontStyle: 'bold',
       }).setOrigin(0.5);
 
-      // Shield bar segments
-      const shieldSegments: Phaser.GameObjects.Rectangle[] = [];
-      const segW = 12;
-      const segH = 4;
-      const segGap = 2;
-      const totalW = SUCK_SHIELD_MAX * segW + (SUCK_SHIELD_MAX - 1) * segGap;
-      const shieldStartX = centerX - totalW / 2;
-      for (let s = 0; s < SUCK_SHIELD_MAX; s++) {
-        const seg = scene.add.rectangle(
-          shieldStartX + s * (segW + segGap) + segW / 2,
-          hudY + 22,
-          segW, segH,
-          PLAYER_COLORS[i]
-        );
-        shieldSegments.push(seg);
-      }
-
       // Stock dots
       const stockDots: Phaser.GameObjects.Ellipse[] = [];
       for (let s = 0; s < 3; s++) {
         const dot = scene.add.ellipse(
-          centerX - 15 + s * 15, hudY + 34, 8, 8,
+          centerX - 15 + s * 15, hudY + 30, 8, 8,
           PLAYER_COLORS[i]
         );
         stockDots.push(dot);
       }
 
-      this.playerHuds.push({ damageText, shieldSegments, stockDots, nameText });
+      this.playerHuds.push({ damageText, stockDots, nameText });
     }
 
     // Match status text (hidden by default)
@@ -78,7 +60,7 @@ export class HudRenderer {
   getGameObjects(): Phaser.GameObjects.GameObject[] {
     const objects: Phaser.GameObjects.GameObject[] = [this.matchText];
     for (const hud of this.playerHuds) {
-      objects.push(hud.nameText, hud.damageText, ...hud.shieldSegments, ...hud.stockDots);
+      objects.push(hud.nameText, hud.damageText, ...hud.stockDots);
     }
     return objects;
   }
@@ -102,12 +84,6 @@ export class HudRenderer {
         hud.stockDots[s].setAlpha(s < fighter.stocks ? 1 : 0.2);
       }
 
-      // Update shield segments
-      for (let s = 0; s < hud.shieldSegments.length; s++) {
-        hud.shieldSegments[s].setFillStyle(
-          fighter.suckShield > s ? PLAYER_COLORS[i] : 0x333333
-        );
-      }
     }
 
     // Match end display
