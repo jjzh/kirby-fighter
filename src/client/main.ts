@@ -1,12 +1,14 @@
 import Phaser from 'phaser';
+import { GameScene } from './scenes/GameScene';
+import { CANVAS_W, CANVAS_H } from '@simulation/constants';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 1280,
-  height: 720,
-  backgroundColor: '#1a1a2e',
+  width: CANVAS_W,
+  height: CANVAS_H,
+  backgroundColor: '#0f0f23',
   parent: document.body,
+  scene: [GameScene],
 };
 
-const game = new Phaser.Game(config);
-console.log('Kirby Fighter loaded');
+new Phaser.Game(config);
