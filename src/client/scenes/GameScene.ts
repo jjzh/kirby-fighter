@@ -31,7 +31,6 @@ export class GameScene extends Phaser.Scene {
       'assets/fighter-kirby.png',
       'assets/fighter-kirby.json'
     );
-    this.load.audio('combat-music', 'assets/audio/combat-music.mp3');
     this.load.image('arena-bg', 'assets/arena-bg.png');
     this.load.audio('ost', 'assets/audio/ost.mp3');
     this.load.audio('sfx_punch', 'assets/sfx/punch.mp3');
@@ -41,7 +40,7 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     // Start combat music (loop)
-    this.music = this.sound.add('combat-music', { loop: true, volume: 0.5 });
+    this.music = this.sound.add('ost', { loop: true, volume: 0.3 });
     this.music.play();
     this.simulation = new GameSimulation(DEFAULT_MATCH, STAGE);
     this.stageRenderer = new StageRenderer(this);
