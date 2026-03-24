@@ -110,8 +110,9 @@ export class FighterRenderer {
       let angleDeg = Math.atan2(cross, dot) * (180 / Math.PI);
       // Clamp
       angleDeg = Math.max(-AIM_ROTATION_CLAMP_DEG, Math.min(AIM_ROTATION_CLAMP_DEG, angleDeg));
-      // When facing left (flipX), negate so "up" still tilts the right visual direction
-      this.sprite.angle = state.facingRight ? angleDeg : -angleDeg;
+      // cross already accounts for facing direction via forwardX, so use angleDeg directly
+      // When flipped (facing left), Phaser's flipX mirrors the visual, so negate rotation
+      this.sprite.angle = state.facingRight ? -angleDeg : angleDeg;
     } else {
       this.sprite.angle = 0;
     }
