@@ -5,9 +5,18 @@ export const CANVAS_W = 1280;
 export const CANVAS_H = 720;
 
 // -- Stage --
+// Stage dimensions
+const STAGE_LEFT = 200;
+const STAGE_RIGHT = 1080;
+const STAGE_WIDTH = STAGE_RIGHT - STAGE_LEFT;
+const STAGE_CENTER = (STAGE_LEFT + STAGE_RIGHT) / 2;
+const PLATFORM_WIDTH = Math.floor(STAGE_WIDTH / 3);
+const PLATFORM_Y = 440; // ~140px above ground (580)
+const PLATFORM_SPACING = STAGE_WIDTH / 4; // Equal spacing from center
+
 export const STAGE: StageConfig = {
-  groundLeft: 200,
-  groundRight: 1080,
+  groundLeft: STAGE_LEFT,
+  groundRight: STAGE_RIGHT,
   groundY: 580,
   blastZone: {
     left: -100,
@@ -15,6 +24,18 @@ export const STAGE: StageConfig = {
     top: -100,
     bottom: 820,
   },
+  platforms: [
+    {
+      left: STAGE_CENTER - PLATFORM_SPACING - PLATFORM_WIDTH / 2,
+      right: STAGE_CENTER - PLATFORM_SPACING + PLATFORM_WIDTH / 2,
+      y: PLATFORM_Y,
+    },
+    {
+      left: STAGE_CENTER + PLATFORM_SPACING - PLATFORM_WIDTH / 2,
+      right: STAGE_CENTER + PLATFORM_SPACING + PLATFORM_WIDTH / 2,
+      y: PLATFORM_Y,
+    },
+  ],
 };
 
 export const DEFAULT_MATCH: MatchConfig = {

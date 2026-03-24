@@ -56,6 +56,12 @@ export interface SuckState {
   projectileVelocity: Vec2;
 }
 
+export interface Platform {
+  left: number;
+  right: number;
+  y: number;
+}
+
 export interface StageConfig {
   /** Left edge of walkable ground (x) */
   groundLeft: number;
@@ -70,6 +76,8 @@ export interface StageConfig {
     top: number;
     bottom: number;
   };
+  /** Floating platforms */
+  platforms: Platform[];
 }
 
 export interface MatchConfig {
