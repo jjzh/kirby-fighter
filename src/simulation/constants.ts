@@ -62,8 +62,8 @@ export const LIGHT_RECOVERY_FRAMES = 6;
 export const LIGHT_DAMAGE = 5;
 export const LIGHT_BASE_KNOCKBACK = 3;
 export const LIGHT_KNOCKBACK_SCALING = 0.08;
-export const LIGHT_HITBOX_W = 35;
-export const LIGHT_HITBOX_H = 30;
+export const LIGHT_HITBOX_W = 40;
+export const LIGHT_HITBOX_H = 35;
 export const LIGHT_HITBOX_OFFSET_X = 25;
 
 // -- Heavy Attack --
@@ -73,8 +73,8 @@ export const HEAVY_RECOVERY_FRAMES = 12;
 export const HEAVY_DAMAGE = 14;
 export const HEAVY_BASE_KNOCKBACK = 6;
 export const HEAVY_KNOCKBACK_SCALING = 0.15;
-export const HEAVY_HITBOX_W = 50;
-export const HEAVY_HITBOX_H = 35;
+export const HEAVY_HITBOX_W = 58;
+export const HEAVY_HITBOX_H = 40;
 export const HEAVY_HITBOX_OFFSET_X = 30;
 
 // -- Heavy Charge --
