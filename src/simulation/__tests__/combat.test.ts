@@ -39,18 +39,29 @@ describe('getAimDirection', () => {
 });
 
 describe('getAttackHitbox', () => {
-  it('places hitbox in front of right-facing fighter', () => {
+  it('places hitbox along aimDirection (right)', () => {
     const f = new Fighter(0, 500, 580);
-    f.facingRight = true;
+    f.aimDirection = { x: 1, y: 0 };
     const hb = getAttackHitbox(f, 'light');
     expect(hb.x).toBeGreaterThan(500);
+    expect(hb.y).toBeCloseTo(580 - 48 / 2);
   });
 
-  it('places hitbox behind left-facing fighter', () => {
+  it('places hitbox along aimDirection (up)', () => {
     const f = new Fighter(0, 500, 580);
-    f.facingRight = false;
+    f.aimDirection = { x: 0, y: -1 };
     const hb = getAttackHitbox(f, 'light');
-    expect(hb.x).toBeLessThan(500);
+    expect(hb.x).toBeCloseTo(500);
+    expect(hb.y).toBeLessThan(580 - 48 / 2);
+  });
+
+  it('places hitbox along aimDirection (diagonal up-right)', () => {
+    const f = new Fighter(0, 500, 580);
+    const d = Math.SQRT1_2;
+    f.aimDirection = { x: d, y: -d };
+    const hb = getAttackHitbox(f, 'light');
+    expect(hb.x).toBeGreaterThan(500);
+    expect(hb.y).toBeLessThan(580 - 48 / 2);
   });
 });
 

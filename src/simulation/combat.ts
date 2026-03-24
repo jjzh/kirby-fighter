@@ -108,10 +108,9 @@ export function getAttackTotalFrames(type: string): number {
 
 export function getAttackHitbox(fighter: Fighter, type: string): Rect {
   const data = ATTACK_DATA[type];
-  const offsetX = fighter.facingRight ? data.hitboxOffsetX : -data.hitboxOffsetX;
   return {
-    x: fighter.x + offsetX,
-    y: fighter.y - FIGHTER_H / 2,
+    x: fighter.x + fighter.aimDirection.x * data.hitboxOffsetX,
+    y: (fighter.y - FIGHTER_H / 2) + fighter.aimDirection.y * data.hitboxOffsetX,
     w: data.hitboxW,
     h: data.hitboxH,
   };
