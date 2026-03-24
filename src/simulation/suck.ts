@@ -1,4 +1,5 @@
 import { Fighter } from './Fighter';
+import { Stage } from './Stage';
 import { FighterAction, type InputState, type Vec2 } from './types';
 import { getAimDirection } from './combat';
 import {
@@ -112,16 +113,23 @@ export function launchProjectile(
   sucker.resetSuckState();
 }
 
-export function tickProjectile(fighter: Fighter): void {
+export function tickProjectile(fighter: Fighter, stage: Stage): void {
   if (fighter.action !== FighterAction.Projectile) return;
   fighter.x += fighter.suck.projectileVelocity.x;
   fighter.y += fighter.suck.projectileVelocity.y;
   fighter.suck.projectileTimer--;
 
-  if (fighter.suck.projectileTimer <= 0) {
+  // Check ground collision — stop projectile on surface hit
+  const hitGround = stage.isOnGround(fighter.x, fighter.y) &&
+                    fighter.suck.projectileVelocity.y > 0;
+  if (hitGround) {
+    fighter.y = stage.clampToGround(fighter.x, fighter.y);
+  }
+
+  if (fighter.suck.projectileTimer <= 0 || hitGround) {
     fighter.velocityX = fighter.suck.projectileVelocity.x * 0.3;
-    fighter.velocityY = fighter.suck.projectileVelocity.y * 0.3;
-    fighter.setAction(FighterAction.Airborne);
+    fighter.velocityY = hitGround ? 0 : fighter.suck.projectileVelocity.y * 0.3;
+    fighter.setAction(hitGround ? FighterAction.Idle : FighterAction.Airborne);
     fighter.resetSuckState();
   }
 }

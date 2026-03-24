@@ -4,8 +4,10 @@ import {
   launchProjectile, tickProjectile,
 } from '../suck';
 import { Fighter } from '../Fighter';
+import { Stage } from '../Stage';
 import { FighterAction, NULL_INPUT } from '../types';
 import {
+  STAGE,
   CAPTURE_MIN_HOLD_FRAMES, PROJECTILE_SELF_DAMAGE,
   PROJECTILE_CONTROL_REGAIN_FRAMES,
 } from '../constants';
@@ -86,13 +88,15 @@ describe('launchProjectile', () => {
 });
 
 describe('tickProjectile', () => {
+  const stage = new Stage(STAGE);
+
   it('moves fighter along projectile velocity', () => {
     const f = new Fighter(0, 500, 400);
     f.action = FighterAction.Projectile;
     f.suck.projectileTimer = 20;
     f.suck.projectileVelocity = { x: 10, y: 0 };
 
-    tickProjectile(f);
+    tickProjectile(f, stage);
     expect(f.x).toBe(510);
     expect(f.suck.projectileTimer).toBe(19);
   });
@@ -103,9 +107,21 @@ describe('tickProjectile', () => {
     f.suck.projectileTimer = 1;
     f.suck.projectileVelocity = { x: 10, y: 0 };
 
-    tickProjectile(f);
+    tickProjectile(f, stage);
     expect(f.suck.projectileTimer).toBe(0);
     expect(f.action).toBe(FighterAction.Airborne);
+  });
+
+  it('stops on ground when launched downward', () => {
+    const f = new Fighter(0, 500, 570); // Just above ground (580)
+    f.action = FighterAction.Projectile;
+    f.suck.projectileTimer = 20;
+    f.suck.projectileVelocity = { x: 5, y: 15 }; // Aimed downward
+
+    tickProjectile(f, stage);
+    expect(f.y).toBe(580); // Clamped to ground
+    expect(f.action).toBe(FighterAction.Idle); // Regained control on ground
+    expect(f.velocityY).toBe(0); // No downward velocity
   });
 
   it('applies self-damage on projectile impact (tested via GameSimulation)', () => {

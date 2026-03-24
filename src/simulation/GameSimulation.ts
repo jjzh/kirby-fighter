@@ -79,7 +79,7 @@ export class GameSimulation {
         processMovement(fighter, input, this.stage);
       }
 
-      tickProjectile(fighter);
+      tickProjectile(fighter, this.stage);
       tickAttack(fighter);
       fighter.tickActionFrame();
       tickHitstun(fighter);
