@@ -13,7 +13,7 @@ export class HudRenderer {
   private matchText: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, playerCount: number) {
-    const hudY = 20;
+    const hudY = 45;
     const sectionWidth = CANVAS_W / playerCount;
 
     for (let i = 0; i < playerCount; i++) {
