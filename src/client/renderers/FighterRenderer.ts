@@ -93,7 +93,11 @@ export class FighterRenderer {
     }
 
     // Scale based on state
-    if (state.action === FighterAction.CaptureHold) {
+    if (state.action === FighterAction.Inhale) {
+      // Lerp from 1.0 to 1.2 over the inhale animation
+      const t = Math.min(state.actionFrame / 30, 1); // ramp over ~0.5s
+      this.sprite.setScale(1 + t * 0.2);
+    } else if (state.action === FighterAction.CaptureHold) {
       this.sprite.setScale(1.2);
     } else {
       this.sprite.setScale(1);
