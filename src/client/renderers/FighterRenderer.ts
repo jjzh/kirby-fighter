@@ -102,16 +102,13 @@ export class FighterRenderer {
     const isAimed = state.action === FighterAction.AttackLight ||
                     state.action === FighterAction.AttackHeavy ||
                     state.action === FighterAction.ChargeHeavy;
-    if (isAimed) {
-      // Compute angle relative to horizontal forward
+    if (isAimed && Math.abs(state.aimDirection.y) > 0.6) {
+      // Only tilt when actively aiming up/down (not from the default 30° knockback bias)
       const forwardX = state.facingRight ? 1 : -1;
       const dot = state.aimDirection.x * forwardX;
       const cross = state.aimDirection.y * forwardX;
       let angleDeg = Math.atan2(cross, dot) * (180 / Math.PI);
-      // Clamp
       angleDeg = Math.max(-AIM_ROTATION_CLAMP_DEG, Math.min(AIM_ROTATION_CLAMP_DEG, angleDeg));
-      // cross already accounts for facing direction via forwardX, so use angleDeg directly
-      // When flipped (facing left), Phaser's flipX mirrors the visual, so negate rotation
       this.sprite.angle = state.facingRight ? -angleDeg : angleDeg;
     } else {
       this.sprite.angle = 0;
