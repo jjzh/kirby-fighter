@@ -98,6 +98,7 @@ export const PROJECTILE_CONTROL_REGAIN_FRAMES = 30;
 export const PROJECTILE_IMPACT_KNOCKBACK_BASE = 5;
 export const PROJECTILE_IMPACT_KNOCKBACK_SCALING = 0.12;
 export const CAPTURE_DISTANCE = 30;
+export const SUCK_SHIELD_MAX = 5;
 
 export const SUCK_RANGE_TABLE = [
   { percent: 0, value: 80 },

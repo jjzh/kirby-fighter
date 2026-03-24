@@ -110,6 +110,7 @@ export interface FighterSnapshot {
   stocks: number;
   invincibleFrames: number;
   suck: SuckState;
+  suckShield: number;
   colorIndex: number;
   /** Whether this fighter has used their double jump */
   doubleJumpUsed: boolean;
