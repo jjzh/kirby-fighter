@@ -9,7 +9,7 @@ import json
 img = Image.open("public/assets/fighter-kirby-raw.png").convert("RGBA")
 bg_color = (32, 176, 216)
 
-with open("scripts/sprite-data.json") as f:
+with open("scripts/sprite-data-sorted.json") as f:
     data = json.load(f)
 
 rows = data["rows"]
@@ -51,7 +51,7 @@ animations = {
         (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5),  # Kick sequence
     ],
     "inhale": [
-        (16, 10), (16, 11), (16, 12), (16, 13), (16, 14),  # Puffed up, mouth open
+        (13, 7), (13, 8), (13, 9), (13, 10),  # Row 13 sorted L-R: puffed, mouth open
     ],
     "capture": [
         (15, 0), (15, 1),  # Puffed up holding someone
