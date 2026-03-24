@@ -15,7 +15,8 @@ Each fighter has a **suck shield** with 5 hit points. Any attack (light or heavy
 | Event | Shield Effect |
 |-------|---------------|
 | Light attack connects | Target loses 1 shield HP |
-| Heavy attack connects | Target loses 1 shield HP |
+| Heavy attack connects | Target loses 1 shield HP (charge multiplier does NOT scale shield damage) |
+| Projectile impact on target | Target loses 1 shield HP |
 | Inhale on shielded target (HP > 0) | Pull works, capture blocked |
 | Inhale on unshielded target (HP = 0) | Capture succeeds (existing behavior) |
 | Captured → spit out (projectile impact or travel timeout) | Shield resets to 5 |
@@ -23,16 +24,23 @@ Each fighter has a **suck shield** with 5 hit points. Any attack (light or heavy
 | Respawn | Shield resets to 5 |
 | No timer/regen | Shield stays at current value indefinitely |
 
+**Not shield damage:** Projectile self-damage (5% on impact) does not affect the spit fighter's own shield. Inhale pull does not affect shield.
+
 ## Simulation Changes
 
 ### Fighter State
 - Add `suckShield: number` to `Fighter` class, default value `5`
 - Add `SUCK_SHIELD_MAX = 5` constant to `src/simulation/constants.ts`
+- Add `resetSuckShield()` helper method on `Fighter`: sets `this.suckShield = SUCK_SHIELD_MAX`. All reset sites call this instead of setting the value directly.
 - Expose in `FighterSnapshot`
 
 ### Attack Resolution (`GameSimulation.resolveAttackHits`)
 - When an attack hits a defender, decrement `defender.suckShield` by 1 (floor at 0)
 - This happens alongside existing damage application — same hit, same frame
+
+### Projectile Impact (`suck.ts` — `applyProjectileImpact`)
+- When a projectile fighter hits a target, decrement `target.suckShield` by 1 (floor at 0)
+- This happens alongside existing projectile damage/knockback application
 
 ### Inhale Gate (`GameSimulation.processSuckForFighter`)
 - In `processSuckForFighter`, after `processInhale` returns a `captureTarget >= 0`, check `victim.suckShield === 0` before calling `startCapture`
@@ -76,4 +84,4 @@ Added to the existing screen-space HUD panel (not world-space). Positioned betwe
 
 ## Scope Boundaries
 - **In scope:** suckShield property, attack decrement, capture gate, shield reset on release/respawn, HUD bar
-- **Out of scope:** per-attack-type shield damage (both do 1), shield regen timer, visual effects on break (flash, sound), shield affecting suck range or mash count
+- **Out of scope:** charge-scaled shield damage (always 1 regardless of charge), shield regen timer, visual effects on break (flash, sound), shield affecting suck range or mash count
