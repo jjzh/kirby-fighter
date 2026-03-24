@@ -80,13 +80,12 @@ export class FighterRenderer {
       { key: 'kirby_jump', frames: ['jump_0', 'jump_1'], frameRate: 6, repeat: -1 },
       { key: 'kirby_fall', frames: ['fall_0', 'fall_1'], frameRate: 6, repeat: -1 },
       { key: 'kirby_light', frames: ['light_0', 'light_1', 'light_2', 'light_3'], frameRate: 15, repeat: 0 },
-      { key: 'kirby_heavy', frames: ['heavy_0', 'heavy_1', 'heavy_2', 'heavy_3', 'heavy_4', 'heavy_5'], frameRate: 12, repeat: 0 },
-      { key: 'kirby_charge_heavy', frames: ['idle_0'], frameRate: 1, repeat: -1 },
-      { key: 'kirby_inhale', frames: ['inhale_0', 'inhale_1', 'inhale_2', 'inhale_2', 'inhale_3', 'inhale_3', 'inhale_3', 'inhale_4', 'inhale_4'], frameRate: 10, repeat: -1 },
+      { key: 'kirby_heavy', frames: ['heavy_0', 'heavy_1', 'heavy_2', 'heavy_3', 'heavy_4', 'heavy_5', 'heavy_6'], frameRate: 12, repeat: 0 },
+      { key: 'kirby_charge_heavy', frames: ['charge_heavy_0'], frameRate: 1, repeat: -1 },
+      { key: 'kirby_inhale', frames: ['inhale_0', 'inhale_1', 'inhale_2', 'inhale_2', 'inhale_3', 'inhale_3', 'inhale_3', 'inhale_3'], frameRate: 10, repeat: -1 },
       { key: 'kirby_capture', frames: ['capture_0', 'capture_1'], frameRate: 4, repeat: -1 },
       { key: 'kirby_hitstun', frames: ['hitstun_0', 'hitstun_1', 'hitstun_2', 'hitstun_3'], frameRate: 12, repeat: -1 },
       { key: 'kirby_dead', frames: ['dead_0', 'dead_1'], frameRate: 8, repeat: -1 },
-      { key: 'kirby_fire', frames: ['fire_0', 'fire_1', 'fire_2', 'fire_3'], frameRate: 16, repeat: 0 },
     ];
 
     for (const anim of anims) {
@@ -201,10 +200,10 @@ export class FighterRenderer {
           this.playAttackSfx();
         }
       }
-      // Hit effect on entering hitstun
-      if (animName === 'kirby_hitstun' && this.currentAnim !== '') {
-        FighterRenderer.spawnHitEffect(this.scene, state.x, state.y - FIGHTER_H / 2);
-      }
+      // Hit effect on entering hitstun (disabled — fire frames not in current sprite sheet)
+      // if (animName === 'kirby_hitstun' && this.currentAnim !== '') {
+      //   FighterRenderer.spawnHitEffect(this.scene, state.x, state.y - FIGHTER_H / 2);
+      // }
       this.currentAnim = animName;
       this.sprite.play(animName);
     }
