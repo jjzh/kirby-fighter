@@ -2,19 +2,19 @@ import Phaser from 'phaser';
 import { type InputState, NULL_INPUT } from '@simulation/types';
 
 // -- Joystick layout --
-const JOYSTICK_X = 170;
-const JOYSTICK_Y = 530;
-const JOYSTICK_DEADZONE = 25;
-const JOYSTICK_MAX_RADIUS = 90;
+const JOYSTICK_X = 130;
+const JOYSTICK_Y = 590;
+const JOYSTICK_DEADZONE = 28;
+const JOYSTICK_MAX_RADIUS = 112;
 const JOYSTICK_ZONE_RIGHT = 500; // left portion of screen is joystick zone
 
 // -- Button layout (fan from primary in bottom-right) --
-const PRIMARY_RADIUS = 56;
-const SECONDARY_RADIUS = 38;
-const FAN_DISTANCE = 120;
+const PRIMARY_RADIUS = 70;
+const SECONDARY_RADIUS = 48;
+const FAN_DISTANCE = 150;
 
-const PRIMARY_X = 1110;
-const PRIMARY_Y = 580;
+const PRIMARY_X = 1180;
+const PRIMARY_Y = 620;
 
 const BUTTON_ALPHA = 0.3;
 const BUTTON_PRESSED_ALPHA = 0.6;
@@ -66,7 +66,7 @@ export class TouchInput {
     this.joystickBase = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, JOYSTICK_MAX_RADIUS, 0xFFFFFF, 0.12);
     this.joystickBase.setDepth(UI_DEPTH).setStrokeStyle(2, 0xFFFFFF, 0.25);
 
-    this.joystickThumb = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, 32, 0xFFFFFF, 0.35);
+    this.joystickThumb = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, 40, 0xFFFFFF, 0.35);
     this.joystickThumb.setDepth(UI_DEPTH + 1);
 
     this.uiObjects.push(this.joystickBase, this.joystickThumb);

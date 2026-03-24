@@ -10,7 +10,7 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: '#0f0f23',
   parent: document.body,
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.ENVELOP,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   input: {
