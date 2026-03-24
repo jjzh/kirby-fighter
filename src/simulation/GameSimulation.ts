@@ -9,7 +9,7 @@ import { applyGravity, processMovement, processJump } from './movement';
 import {
   processAttack, tickAttack, tickHitstun,
   getAttackPhase, getAttackHitbox, getHurtbox, checkHitboxOverlap,
-  getAttackData, calculateKnockback, applyKnockback, getAimDirection, getHeavyChargeMultiplier,
+  getAttackData, calculateKnockback, applyKnockback, getHeavyChargeMultiplier,
 } from './combat';
 import {
   processInhale, startCapture, processCapture,
@@ -91,7 +91,7 @@ export class GameSimulation {
     }
 
     this.resolveBodyCollisions();
-    this.resolveAttackHits(inputs);
+    this.resolveAttackHits();
     this.resolveProjectileHits();
     this.checkBlastZones();
     this.checkWinCondition();
@@ -141,7 +141,7 @@ export class GameSimulation {
     }
   }
 
-  private resolveAttackHits(inputs: InputState[]): void {
+  private resolveAttackHits(): void {
     for (let attackerIdx = 0; attackerIdx < this.fighters.length; attackerIdx++) {
       const attacker = this.fighters[attackerIdx];
       const phase = getAttackPhase(attacker);
@@ -159,7 +159,7 @@ export class GameSimulation {
       const attackType = attacker.action === FighterAction.AttackLight ? 'light' : 'heavy';
       const hitbox = getAttackHitbox(attacker, attackType);
       const attackData = getAttackData(attackType);
-      const aimDir = getAimDirection(inputs[attackerIdx], attacker.facingRight);
+      const aimDir = attacker.aimDirection;
 
       for (let defenderIdx = 0; defenderIdx < this.fighters.length; defenderIdx++) {
         if (attackerIdx === defenderIdx) continue;
