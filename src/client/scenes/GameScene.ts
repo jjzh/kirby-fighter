@@ -48,5 +48,10 @@ export class GameScene extends Phaser.Scene {
       this.fighterRenderers[i].update(snap.fighters[i]);
     }
     this.hudRenderer.update(snap);
+
+    // Check for match end
+    if (snap.matchPhase === 'ended') {
+      this.scene.start('ResultScene', { winnerIndex: snap.winnerIndex });
+    }
   }
 }
