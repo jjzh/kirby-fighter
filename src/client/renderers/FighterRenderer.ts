@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { FighterAction, type FighterSnapshot } from '@simulation/types';
-import { FIGHTER_H } from '@simulation/constants';
+import { PLAYER_COLORS, FIGHTER_H, SUCK_SHIELD_MAX } from '@simulation/constants';
 
 const AIM_ROTATION_CLAMP_DEG = 70;
 
