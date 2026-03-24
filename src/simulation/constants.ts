@@ -27,7 +27,7 @@ export const FIGHTER_W = 40;
 export const FIGHTER_H = 48;
 
 // -- Physics --
-export const GRAVITY = 0.6;
+export const GRAVITY = 0.48;
 export const MAX_FALL_SPEED = 12;
 export const RUN_SPEED = 5;
 export const AIR_SPEED = 4;
