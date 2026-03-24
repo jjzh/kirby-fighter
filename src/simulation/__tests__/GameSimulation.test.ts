@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { GameSimulation } from '../GameSimulation';
 import { FighterAction, MatchPhase, NULL_INPUT } from '../types';
-import { STAGE, RESPAWN_INVINCIBILITY_FRAMES, RUN_SPEED } from '../constants';
+import { STAGE, RESPAWN_INVINCIBILITY_FRAMES, RUN_SPEED, SUCK_SHIELD_MAX } from '../constants';
 
 function createSim(playerCount = 2) {
   return new GameSimulation({ stocks: 3, playerCount }, STAGE);
@@ -95,5 +95,47 @@ describe('GameSimulation', () => {
     expect(sim.getSnapshot().frameNumber).toBe(1);
     sim.step([NULL_INPUT, NULL_INPUT]);
     expect(sim.getSnapshot().frameNumber).toBe(2);
+  });
+});
+
+describe('suck shield', () => {
+  it('decrements shield on attack hit', () => {
+    const sim = new GameSimulation({ stocks: 3, playerCount: 2 }, STAGE);
+    // Position fighters close together so the attack lands
+    (sim as any).fighters[0].x = 500;
+    (sim as any).fighters[0].y = 580;
+    (sim as any).fighters[0].facingRight = true;
+    (sim as any).fighters[1].x = 530;
+    (sim as any).fighters[1].y = 580;
+    expect(sim.getSnapshot().fighters[1].suckShield).toBe(SUCK_SHIELD_MAX);
+
+    // P1 light attack aimed at P2
+    sim.step([{ ...NULL_INPUT, light: true }, NULL_INPUT]);
+    // Tick through startup frames (3 frames) + into active frames
+    for (let i = 0; i < 3; i++) {
+      sim.step([NULL_INPUT, NULL_INPUT]);
+    }
+
+    const snap1 = sim.getSnapshot();
+    expect(snap1.fighters[1].suckShield).toBeLessThan(SUCK_SHIELD_MAX);
+  });
+
+  it('blocks capture when shield is up', () => {
+    const sim = new GameSimulation({ stocks: 3, playerCount: 2 }, STAGE);
+
+    // Position P2 right next to P1 (within capture distance of 30px)
+    const fighters = (sim as any).fighters;
+    fighters[1].x = fighters[0].x + 25;
+
+    // P1 starts inhaling — P2 has full shield, should NOT be captured
+    const suckInput = { ...NULL_INPUT, suck: true };
+    sim.step([suckInput, NULL_INPUT]);
+    for (let i = 0; i < 5; i++) {
+      sim.step([suckInput, NULL_INPUT]);
+    }
+
+    const snap = sim.getSnapshot();
+    expect(snap.fighters[1].suckShield).toBe(SUCK_SHIELD_MAX);
+    expect(snap.fighters[1].action).not.toBe('capture_hold');
   });
 });

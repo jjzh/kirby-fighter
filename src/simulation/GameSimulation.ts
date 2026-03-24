@@ -107,7 +107,7 @@ export class GameSimulation {
         return;
       }
       const captureTarget = processInhale(fighter, this.fighters, index);
-      if (captureTarget >= 0) {
+      if (captureTarget >= 0 && this.fighters[captureTarget].suckShield === 0) {
         startCapture(fighter, this.fighters[captureTarget], captureTarget, index);
       }
       return;
@@ -178,6 +178,7 @@ export class GameSimulation {
             ? getHeavyChargeMultiplier(attacker.heavyChargeFrames)
             : 1;
           defender.damage += attackData.damage * chargeMult;
+          defender.suckShield = Math.max(0, defender.suckShield - 1);
           const knockbackMag = calculateKnockback(
             attackData.baseKnockback * chargeMult, attackData.knockbackScaling, defender.damage
           );
