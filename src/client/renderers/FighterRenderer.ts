@@ -4,6 +4,8 @@ import { PLAYER_COLORS, FIGHTER_H, FIGHTER_W } from '@simulation/constants';
 import { getAttackHitbox, getAttackPhase, getHurtbox, type Rect } from '@simulation/combat';
 import { Fighter } from '@simulation/Fighter';
 
+const AIM_ROTATION_CLAMP_DEG = 70;
+
 /** Map FighterAction to spritesheet animation name */
 function getAnimName(action: FighterAction, velocityY: number): string {
   switch (action) {
@@ -95,6 +97,24 @@ export class FighterRenderer {
     // Facing direction — flip sprite horizontally
     this.sprite.setFlipX(!state.facingRight);
 
+    // Sprite rotation based on aim direction during attacks
+    const isAimed = state.action === FighterAction.AttackLight ||
+                    state.action === FighterAction.AttackHeavy ||
+                    state.action === FighterAction.ChargeHeavy;
+    if (isAimed) {
+      // Compute angle relative to horizontal forward
+      const forwardX = state.facingRight ? 1 : -1;
+      const dot = state.aimDirection.x * forwardX;
+      const cross = state.aimDirection.y * forwardX;
+      let angleDeg = Math.atan2(cross, dot) * (180 / Math.PI);
+      // Clamp
+      angleDeg = Math.max(-AIM_ROTATION_CLAMP_DEG, Math.min(AIM_ROTATION_CLAMP_DEG, angleDeg));
+      // When facing left (flipX), negate so "up" still tilts the right visual direction
+      this.sprite.angle = state.facingRight ? angleDeg : -angleDeg;
+    } else {
+      this.sprite.angle = 0;
+    }
+
     // Invincibility blink
     const blinking = state.invincibleFrames > 0 && Math.floor(state.invincibleFrames / 4) % 2 === 0;
     this.sprite.setAlpha(blinking ? 0.4 : 1);
@@ -150,6 +170,7 @@ export class FighterRenderer {
     tempFighter.facingRight = state.facingRight;
     tempFighter.action = state.action;
     tempFighter.actionFrame = state.actionFrame;
+    tempFighter.aimDirection = state.aimDirection;
 
     // Hurtbox — green outline
     const hurtbox = getHurtbox(tempFighter);
