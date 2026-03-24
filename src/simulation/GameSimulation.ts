@@ -4,7 +4,7 @@ import {
   type InputState, type MatchConfig, type StageConfig,
   type SimulationSnapshot, NULL_INPUT, FighterAction, MatchPhase, AttackPhase,
 } from './types';
-import { RESPAWN_INVINCIBILITY_FRAMES, RESPAWN_X, RESPAWN_Y } from './constants';
+import { RESPAWN_INVINCIBILITY_FRAMES, RESPAWN_X, RESPAWN_Y, FIGHTER_W, FIGHTER_H } from './constants';
 import { applyGravity, processMovement, processJump } from './movement';
 import {
   processAttack, tickAttack, tickHitstun,
@@ -90,6 +90,7 @@ export class GameSimulation {
       fighter.prevSuckPressed = input.suck;
     }
 
+    this.resolveBodyCollisions();
     this.resolveAttackHits(inputs);
     this.resolveProjectileHits();
     this.checkBlastZones();
@@ -234,6 +235,36 @@ export class GameSimulation {
       if (captor.action !== FighterAction.Dead) {
         captor.setAction(captor.velocityY !== 0 ? FighterAction.Airborne : FighterAction.Idle);
         captor.resetSuckState();
+      }
+    }
+  }
+
+  /** Push overlapping fighters apart on the x-axis. */
+  private resolveBodyCollisions(): void {
+    for (let i = 0; i < this.fighters.length; i++) {
+      for (let j = i + 1; j < this.fighters.length; j++) {
+        const a = this.fighters[i];
+        const b = this.fighters[j];
+
+        if (a.action === FighterAction.Dead || b.action === FighterAction.Dead) continue;
+        if (a.suck.capturedBy >= 0 || b.suck.capturedBy >= 0) continue;
+        if (a.action === FighterAction.Projectile || b.action === FighterAction.Projectile) continue;
+
+        const dx = b.x - a.x;
+        const dy = b.y - a.y; // feet-to-feet vertical distance
+        if (Math.abs(dy) >= FIGHTER_H) continue; // Not vertically overlapping
+        if (Math.abs(dx) >= FIGHTER_W) continue; // Not horizontally overlapping
+
+        // Push apart equally on x-axis
+        const overlap = FIGHTER_W - Math.abs(dx);
+        const push = overlap / 2;
+        if (dx >= 0) {
+          a.x -= push;
+          b.x += push;
+        } else {
+          a.x += push;
+          b.x -= push;
+        }
       }
     }
   }
