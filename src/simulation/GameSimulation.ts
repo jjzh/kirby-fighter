@@ -250,6 +250,10 @@ export class GameSimulation {
         if (a.suck.capturedBy >= 0 || b.suck.capturedBy >= 0) continue;
         if (a.action === FighterAction.Projectile || b.action === FighterAction.Projectile) continue;
 
+        // Skip collision when either fighter is inhaling or being pulled by inhale
+        if (a.action === FighterAction.Inhale || b.action === FighterAction.Inhale) continue;
+        if (a.action === FighterAction.CaptureHold || b.action === FighterAction.CaptureHold) continue;
+
         const dx = b.x - a.x;
         const dy = b.y - a.y; // feet-to-feet vertical distance
         if (Math.abs(dy) >= FIGHTER_H) continue; // Not vertically overlapping
