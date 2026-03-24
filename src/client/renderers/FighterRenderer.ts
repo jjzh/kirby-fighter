@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { FighterAction, AttackPhase, type FighterSnapshot } from '@simulation/types';
-import { FIGHTER_H, FIGHTER_W, INHALE_CONE_HALF_ANGLE, SUCK_RANGE_TABLE } from '@simulation/constants';
+import { FIGHTER_H, FIGHTER_W, INHALE_CONE_HALF_ANGLE, INHALE_MIN_RANGE, INHALE_MAX_RANGE, INHALE_RAMP_FRAMES, SUCK_RANGE_TABLE } from '@simulation/constants';
 import { getAttackHitbox, getAttackPhase, getHurtbox, type Rect } from '@simulation/combat';
 import { Fighter } from '@simulation/Fighter';
 
@@ -187,29 +187,18 @@ export class FighterRenderer {
       }
     }
 
-    // Suck cone — blue triangle showing inhale range at different victim %
+    // Suck cone — grows from inner to middle range over 0.5s
     if (state.action === FighterAction.Inhale) {
       const dir = state.facingRight ? 1 : -1;
       const ox = state.x;
       const oy = state.y - FIGHTER_H / 2;
-      // Draw cones for 0%, 50%, 100% ranges
-      const ranges = [
-        { range: SUCK_RANGE_TABLE[0].value, alpha: 0.15, color: 0x4444FF },
-        { range: SUCK_RANGE_TABLE[1].value, alpha: 0.10, color: 0x4444FF },
-        { range: SUCK_RANGE_TABLE[2].value, alpha: 0.05, color: 0x4444FF },
-      ];
-      for (const { range, alpha, color } of ranges) {
-        const endY1 = oy - Math.sin(INHALE_CONE_HALF_ANGLE) * range;
-        const endY2 = oy + Math.sin(INHALE_CONE_HALF_ANGLE) * range;
-        const endX = ox + dir * Math.cos(INHALE_CONE_HALF_ANGLE) * range;
-        this.debugGfx.fillStyle(color, alpha);
-        this.debugGfx.beginPath();
-        this.debugGfx.moveTo(ox, oy);
-        this.debugGfx.lineTo(endX, endY1);
-        this.debugGfx.lineTo(endX, endY2);
-        this.debugGfx.closePath();
-        this.debugGfx.fillPath();
-      }
+      const t = Math.min(state.actionFrame / INHALE_RAMP_FRAMES, 1);
+      const currentRange = INHALE_MIN_RANGE + t * (INHALE_MAX_RANGE - INHALE_MIN_RANGE);
+
+      // Max range outline (faint)
+      this.drawCone(ox, oy, dir, INHALE_MAX_RANGE, 0x4444FF, 0.05);
+      // Current range (solid)
+      this.drawCone(ox, oy, dir, currentRange, 0x4444FF, 0.15);
     }
   }
 
@@ -219,5 +208,18 @@ export class FighterRenderer {
 
   private fillRect(r: Rect): void {
     this.debugGfx.fillRect(r.x - r.w / 2, r.y - r.h / 2, r.w, r.h);
+  }
+
+  private drawCone(ox: number, oy: number, dir: number, range: number, color: number, alpha: number): void {
+    const endY1 = oy - Math.sin(INHALE_CONE_HALF_ANGLE) * range;
+    const endY2 = oy + Math.sin(INHALE_CONE_HALF_ANGLE) * range;
+    const endX = ox + dir * Math.cos(INHALE_CONE_HALF_ANGLE) * range;
+    this.debugGfx.fillStyle(color, alpha);
+    this.debugGfx.beginPath();
+    this.debugGfx.moveTo(ox, oy);
+    this.debugGfx.lineTo(endX, endY1);
+    this.debugGfx.lineTo(endX, endY2);
+    this.debugGfx.closePath();
+    this.debugGfx.fillPath();
   }
 }
