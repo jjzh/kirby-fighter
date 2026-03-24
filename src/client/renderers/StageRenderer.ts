@@ -3,14 +3,16 @@ import { STAGE, CANVAS_W, CANVAS_H } from '@simulation/constants';
 
 export class StageRenderer {
   private graphics: Phaser.GameObjects.Graphics;
+  private background: Phaser.GameObjects.Image;
 
   constructor(scene: Phaser.Scene) {
+    this.background = scene.add.image(CANVAS_W / 2, CANVAS_H / 2, 'arena-bg').setDepth(-1);
     this.graphics = scene.add.graphics();
     this.draw();
   }
 
   getGameObjects(): Phaser.GameObjects.GameObject[] {
-    return [this.graphics];
+    return [this.background, this.graphics];
   }
 
   private draw(): void {

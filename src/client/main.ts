@@ -7,6 +7,7 @@ const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: CANVAS_W,
   height: CANVAS_H,
+  pixelArt: true,
   backgroundColor: '#0f0f23',
   parent: document.body,
   scale: {
