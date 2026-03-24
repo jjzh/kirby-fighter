@@ -1,0 +1,28 @@
+{
+  "name": "kirby_fighter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "terser": "^5.46.1",
+    "typescript": "~5.7.2",
+    "vite": "^6.4.1",
+    "vitest": "^3.2.4"
+  }
+}
