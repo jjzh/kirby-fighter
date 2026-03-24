@@ -16,6 +16,7 @@ export class GameScene extends Phaser.Scene {
   private hudRenderer!: HudRenderer;
   private keyboardInput!: KeyboardInput;
   private accumulator = 0;
+  private music!: Phaser.Sound.BaseSound;
 
   constructor() {
     super('GameScene');
@@ -27,9 +28,13 @@ export class GameScene extends Phaser.Scene {
       'assets/fighter-kirby.png',
       'assets/fighter-kirby.json'
     );
+    this.load.audio('combat-music', 'assets/audio/combat-music.mp3');
   }
 
   create(): void {
+    // Start combat music (loop)
+    this.music = this.sound.add('combat-music', { loop: true, volume: 0.5 });
+    this.music.play();
     this.simulation = new GameSimulation(DEFAULT_MATCH, STAGE);
     this.stageRenderer = new StageRenderer(this);
     this.keyboardInput = new KeyboardInput(this, DEFAULT_MATCH.playerCount);
@@ -74,6 +79,7 @@ export class GameScene extends Phaser.Scene {
 
     // Check for match end
     if (snap.matchPhase === 'ended') {
+      this.music.stop();
       this.scene.start('ResultScene', { winnerIndex: snap.winnerIndex });
     }
   }
