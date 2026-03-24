@@ -83,7 +83,7 @@ export class Fighter {
     this.actionFrame = 0;
     this.invincibleFrames = invincibleFrames;
     this.doubleJumpUsed = false;
-    this.aimDirection = { x: 1, y: 0 };
+    this.aimDirection = { x: this.facingRight ? 1 : -1, y: 0 };
     this.resetSuckState();
   }
 
