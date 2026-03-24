@@ -6,6 +6,7 @@ import {
   LIGHT_HITBOX_W, LIGHT_HITBOX_H, LIGHT_HITBOX_OFFSET_X,
   HEAVY_STARTUP_FRAMES, HEAVY_ACTIVE_FRAMES, HEAVY_RECOVERY_FRAMES,
   HEAVY_DAMAGE, HEAVY_BASE_KNOCKBACK, HEAVY_KNOCKBACK_SCALING,
+  HEAVY_CHARGE_MIN_MULTIPLIER, HEAVY_CHARGE_MAX_FRAMES,
   HEAVY_HITBOX_W, HEAVY_HITBOX_H, HEAVY_HITBOX_OFFSET_X,
   HITSTUN_MULTIPLIER, FIGHTER_H,
 } from './constants';
@@ -120,6 +121,16 @@ export function calculateKnockback(base: number, scaling: number, damage: number
 }
 
 export function processAttack(fighter: Fighter, input: InputState): void {
+  // Handle charge release → fire heavy attack
+  if (fighter.action === FighterAction.ChargeHeavy) {
+    if (!input.heavy) {
+      // Released — store charge duration, fire the heavy attack
+      fighter.heavyChargeFrames = fighter.actionFrame;
+      fighter.setAction(FighterAction.AttackHeavy);
+    }
+    return;
+  }
+
   const inAttack = fighter.action === FighterAction.AttackLight ||
                    fighter.action === FighterAction.AttackHeavy;
   if (inAttack) return;
@@ -135,7 +146,7 @@ export function processAttack(fighter: Fighter, input: InputState): void {
   if (lightJustPressed) {
     fighter.setAction(FighterAction.AttackLight);
   } else if (heavyJustPressed) {
-    fighter.setAction(FighterAction.AttackHeavy);
+    fighter.setAction(FighterAction.ChargeHeavy);
   }
 }
 
@@ -167,4 +178,10 @@ export function tickHitstun(fighter: Fighter): void {
 
 export function getAttackData(type: string): AttackData {
   return ATTACK_DATA[type];
+}
+
+/** Get damage/knockback multiplier based on heavy charge duration. Lerps from 0.7 to 1.0. */
+export function getHeavyChargeMultiplier(chargeFrames: number): number {
+  const t = Math.min(chargeFrames / HEAVY_CHARGE_MAX_FRAMES, 1);
+  return HEAVY_CHARGE_MIN_MULTIPLIER + t * (1 - HEAVY_CHARGE_MIN_MULTIPLIER);
 }

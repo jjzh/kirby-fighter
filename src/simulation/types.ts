@@ -26,6 +26,7 @@ export enum FighterAction {
   Airborne = 'airborne',
   AttackLight = 'attack_light',
   AttackHeavy = 'attack_heavy',
+  ChargeHeavy = 'charge_heavy',
   Inhale = 'inhale',
   CaptureHold = 'capture_hold',
   Projectile = 'projectile',

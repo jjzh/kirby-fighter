@@ -56,6 +56,10 @@ export const HEAVY_HITBOX_W = 50;
 export const HEAVY_HITBOX_H = 35;
 export const HEAVY_HITBOX_OFFSET_X = 30;
 
+// -- Heavy Charge --
+export const HEAVY_CHARGE_MIN_MULTIPLIER = 0.7; // 30% lower at no charge
+export const HEAVY_CHARGE_MAX_FRAMES = 60; // Full charge at 1 second
+
 // -- Knockback --
 export const HITSTUN_MULTIPLIER = 3;
 

@@ -11,6 +11,7 @@ const GROUNDED_ACTIONS = new Set([
   FighterAction.Run,
   FighterAction.AttackLight,
   FighterAction.AttackHeavy,
+  FighterAction.ChargeHeavy,
   FighterAction.Inhale,
   FighterAction.CaptureHold,
 ]);
@@ -27,6 +28,7 @@ export function processMovement(fighter: Fighter, input: InputState, stage: Stag
   const isGrounded = GROUNDED_ACTIONS.has(fighter.action) && fighter.velocityY === 0;
   const isInAction = fighter.action === FighterAction.AttackLight ||
                      fighter.action === FighterAction.AttackHeavy ||
+                     fighter.action === FighterAction.ChargeHeavy ||
                      fighter.action === FighterAction.Hitstun ||
                      fighter.action === FighterAction.Projectile;
 

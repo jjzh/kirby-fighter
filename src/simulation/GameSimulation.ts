@@ -9,7 +9,7 @@ import { applyGravity, processMovement, processJump } from './movement';
 import {
   processAttack, tickAttack, tickHitstun,
   getAttackPhase, getAttackHitbox, getHurtbox, checkHitboxOverlap,
-  getAttackData, calculateKnockback, applyKnockback, getAimDirection,
+  getAttackData, calculateKnockback, applyKnockback, getAimDirection, getHeavyChargeMultiplier,
 } from './combat';
 import {
   processInhale, startCapture, processCapture,
@@ -173,9 +173,13 @@ export class GameSimulation {
 
         const hurtbox = getHurtbox(defender);
         if (checkHitboxOverlap(hitbox, hurtbox)) {
-          defender.damage += attackData.damage;
+          // Apply charge multiplier for heavy attacks
+          const chargeMult = attackType === 'heavy'
+            ? getHeavyChargeMultiplier(attacker.heavyChargeFrames)
+            : 1;
+          defender.damage += attackData.damage * chargeMult;
           const knockbackMag = calculateKnockback(
-            attackData.baseKnockback, attackData.knockbackScaling, defender.damage
+            attackData.baseKnockback * chargeMult, attackData.knockbackScaling, defender.damage
           );
           applyKnockback(defender, knockbackMag, aimDir);
           this.hitThisAttack.add(hitKey);

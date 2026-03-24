@@ -25,6 +25,8 @@ export class Fighter {
   stocks: number;
   invincibleFrames = 0;
   doubleJumpUsed = false;
+  /** Frames spent charging heavy attack (preserved when transitioning to AttackHeavy) */
+  heavyChargeFrames = 0;
   suck: SuckState;
 
   prevJumpPressed = false;

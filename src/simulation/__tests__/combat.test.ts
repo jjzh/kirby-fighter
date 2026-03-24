@@ -98,12 +98,21 @@ describe('processAttack', () => {
     expect(f.actionFrame).toBe(5);
   });
 
-  it('starts heavy attack on fresh press', () => {
+  it('starts heavy charge on fresh press', () => {
     const f = new Fighter(0, 500, 580);
     f.action = FighterAction.Idle;
     const input = { ...NULL_INPUT, heavy: true };
     processAttack(f, input);
+    expect(f.action).toBe(FighterAction.ChargeHeavy);
+  });
+
+  it('releases heavy attack when heavy button released during charge', () => {
+    const f = new Fighter(0, 500, 580);
+    f.action = FighterAction.ChargeHeavy;
+    f.actionFrame = 20;
+    processAttack(f, NULL_INPUT); // heavy not held
     expect(f.action).toBe(FighterAction.AttackHeavy);
+    expect(f.heavyChargeFrames).toBe(20);
   });
 });
 

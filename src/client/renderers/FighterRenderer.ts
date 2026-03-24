@@ -9,6 +9,7 @@ function getAnimName(action: FighterAction, velocityY: number): string {
     case FighterAction.Airborne: return velocityY < 0 ? 'jump' : 'fall';
     case FighterAction.AttackLight: return 'light';
     case FighterAction.AttackHeavy: return 'heavy';
+    case FighterAction.ChargeHeavy: return 'idle';
     case FighterAction.Inhale: return 'inhale';
     case FighterAction.CaptureHold: return 'capture';
     case FighterAction.Hitstun: return 'hitstun';
@@ -103,8 +104,18 @@ export class FighterRenderer {
       this.sprite.setScale(1);
     }
 
-    // Hitstun flash — briefly go white
-    if (state.action === FighterAction.Hitstun && state.actionFrame < 4) {
+    // Charge heavy flash — alternating white flash, faster as charge builds
+    if (state.action === FighterAction.ChargeHeavy) {
+      const flashSpeed = Math.max(3, 8 - Math.floor(state.actionFrame / 10)); // Gets faster
+      const flashing = Math.floor(state.actionFrame / flashSpeed) % 2 === 0;
+      if (flashing) {
+        this.sprite.setTintFill(0xFFFFFF);
+      } else {
+        this.sprite.clearTint();
+        this.sprite.setTint(PLAYER_TINTS[this.index] ?? 0xFFFFFF);
+      }
+    } else if (state.action === FighterAction.Hitstun && state.actionFrame < 4) {
+      // Hitstun flash — briefly go white
       this.sprite.setTintFill(0xFFFFFF);
     } else {
       this.sprite.clearTint();
