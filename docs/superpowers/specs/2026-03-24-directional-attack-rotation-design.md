@@ -30,12 +30,16 @@ Currently attacks always fire horizontally (toward `facingRight`) — the aim di
 - Default value: `{ x: 1, y: 0 }` (facing right) or `{ x: -1, y: 0 }` (facing left)
 - Exposed in `FighterSnapshot`
 
+### AimDirection Reset via `setAction`
+- `Fighter.setAction()` resets `aimDirection` to facing direction whenever the new action is NOT `AttackLight`, `AttackHeavy`, or `ChargeHeavy`
+- This is the single point of reset — prevents stale aim from leaking across any state transition (hitstun, capture, idle, airborne, inhale, etc.)
+
 ### Attack Flow (`combat.ts`)
 - `processAttack`:
   - Light just-pressed → capture `aimDirection` from `getAimDirection(input, facingRight)`, then `setAction(AttackLight)`
   - Heavy just-pressed → `setAction(ChargeHeavy)`, begin updating `aimDirection` each frame
-  - During `ChargeHeavy` → update `aimDirection` from current input each frame
-  - Heavy released → lock `aimDirection`, set `heavyChargeFrames`, transition to `AttackHeavy`
+  - During `ChargeHeavy` → update `aimDirection` from current input **before** the early return (so the live preview works even though we're not transitioning state)
+  - Heavy released → capture final `aimDirection` from `getAimDirection(input, facingRight)`, set `heavyChargeFrames`, transition to `AttackHeavy`
 
 ### Hitbox Placement (`getAttackHitbox`)
 Current: offset hitbox horizontally by `hitboxOffsetX` based on `facingRight`
@@ -72,9 +76,18 @@ No change needed — already reads from `getAttackHitbox`, which will automatica
 - Animation selection (same animations regardless of aim)
 
 ## Edge Cases
+
+### Handled
 - **FlipX + rotation sign**: when sprite is flipped, Phaser's rotation axis flips too. Renderer must negate rotation angle when facing left.
+- **Stale aimDirection across state transitions**: `setAction()` resets aimDirection to facing direction for all non-attack states. This covers: hit mid-attack → hitstun, captured mid-attack → CaptureHold, attack ends → idle/airborne, inhale after attack. One reset point, no leaks.
+- **ChargeHeavy aim update timing**: aimDirection updates in `processAttack` before the early return for ChargeHeavy, so the live preview works every frame.
+- **ChargeHeavy → AttackHeavy aim lock**: final aimDirection is captured from input in the same frame as the release, before `setAction(AttackHeavy)` (which would otherwise reset it).
+
+### Accepted trade-offs
 - **Axis-aligned hitbox when aiming straight up**: a 35×30 hitbox placed directly above Kirby is wide-but-short. At these sizes the difference from a rotated rectangle is negligible. Revisit if feel is off.
-- **Aim during hitstun interruption**: if hit mid-attack, transition to hitstun resets rotation to 0. The snap is masked by hitstun's white flash + knockback velocity.
+- **Down-aim hitbox clips below stage floor**: with `hitboxOffsetX=25`, a straight-down attack places the hitbox center ~1px below ground level. The hitbox extends ~15px underground — wasted coverage but harmless since nothing is below the floor. Accept for now.
+- **Diagonal attacks have shorter forward reach**: at 45°, the forward component of the offset is ~17.7px vs 25px horizontal. Consistent offset magnitude is simpler and the difference is small. Revisit if diagonals feel weak.
+- **Charge flash may obscure rotation preview**: the white flash during ChargeHeavy gets faster as charge builds, which could make the live rotation preview hard to read. Playtest first — the rotation may be readable enough.
 
 ## Scope Boundaries
 - **In scope:** Light attack, heavy charge + release, hitbox repositioning, sprite rotation, debug vis
