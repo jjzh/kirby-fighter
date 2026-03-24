@@ -3,7 +3,8 @@ import { Stage } from './Stage';
 import { FighterAction, type InputState, type Vec2 } from './types';
 import { getAimDirection } from './combat';
 import {
-  INHALE_CONE_HALF_ANGLE, INHALE_PULL_SPEED, CAPTURE_DISTANCE,
+  INHALE_CONE_HALF_ANGLE, INHALE_RAMP_FRAMES, INHALE_MIN_RANGE, INHALE_MAX_RANGE,
+  INHALE_PULL_SPEED, CAPTURE_DISTANCE,
   CAPTURE_MIN_HOLD_FRAMES, PROJECTILE_SELF_DAMAGE,
   PROJECTILE_CONTROL_REGAIN_FRAMES,
   SUCK_RANGE_TABLE, SUCK_MASH_TABLE, SUCK_LAUNCH_SPEED_TABLE,
@@ -33,7 +34,9 @@ export function processInhale(
     if (target.invincibleFrames > 0) continue;
     if (target.suck.capturedBy >= 0) continue;
 
-    const range = lookupScaling(SUCK_RANGE_TABLE, target.damage);
+    // Range grows from INHALE_MIN_RANGE to INHALE_MAX_RANGE over INHALE_RAMP_FRAMES
+    const t = Math.min(sucker.actionFrame / INHALE_RAMP_FRAMES, 1);
+    const range = INHALE_MIN_RANGE + t * (INHALE_MAX_RANGE - INHALE_MIN_RANGE);
     if (!isInInhaleCone(sucker, target.x, target.y, range)) continue;
 
     const dx = sucker.x - target.x;

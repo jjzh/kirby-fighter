@@ -90,6 +90,9 @@ export const KNOCKBACK_MIN_LAUNCH_ANGLE = Math.PI / 9; // ~20° minimum when gro
 
 // -- Suck Mechanic --
 export const INHALE_CONE_HALF_ANGLE = Math.PI / 6;
+export const INHALE_RAMP_FRAMES = 30; // Cone grows over 0.5 seconds
+export const INHALE_MIN_RANGE = 80; // Starting range (inner cone)
+export const INHALE_MAX_RANGE = 160; // Maximum range (middle cone)
 export const INHALE_PULL_SPEED = 4;
 export const CAPTURE_MOVE_SPEED = 2.5;
 export const CAPTURE_MIN_HOLD_FRAMES = 60;
