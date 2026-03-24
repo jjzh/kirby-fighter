@@ -1,0 +1,109 @@
+<h2>Mobile Controls — Fan Layout</h2>
+<p class="subtitle">Primary button (light attack) bottom-right, secondary buttons fan around it</p>
+
+<div class="mockup">
+  <div class="mockup-header">Mobile — Left Stick + Fan Action Buttons</div>
+  <div class="mockup-body" style="padding: 16px;">
+    <!-- Phone landscape frame -->
+    <div style="background: #0f172a; border: 2px solid #334155; border-radius: 16px; padding: 16px; position: relative; height: 340px; overflow: hidden;">
+
+      <!-- Game view -->
+      <div style="background: #1e293b; border-radius: 8px; position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px;">
+        <!-- Stage -->
+        <div style="position: absolute; bottom: 100px; left: 15%; right: 15%; height: 8px; background: #475569; border-radius: 4px;"></div>
+        <!-- Kirbys -->
+        <div style="position: absolute; bottom: 112px; left: 35%; width: 24px; height: 24px; background: #f472b6; border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: 112px; right: 30%; width: 24px; height: 24px; background: #60a5fa; border-radius: 50%;"></div>
+
+        <!-- HUD -->
+        <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 24px;">
+          <div style="text-align: center;">
+            <div style="width: 12px; height: 12px; background: #f472b6; border-radius: 50%; margin: 0 auto 4px;"></div>
+            <span style="color: #f472b6; font-size: 14px; font-weight: bold; font-family: monospace;">42%</span>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 12px; height: 12px; background: #60a5fa; border-radius: 50%; margin: 0 auto 4px;"></div>
+            <span style="color: #60a5fa; font-size: 14px; font-weight: bold; font-family: monospace;">17%</span>
+          </div>
+        </div>
+
+        <!-- Stock icons -->
+        <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 4px;">
+          <div style="width: 8px; height: 8px; background: #f472b6; border-radius: 50%;"></div>
+          <div style="width: 8px; height: 8px; background: #f472b6; border-radius: 50%;"></div>
+          <div style="width: 8px; height: 8px; background: #f472b6; border-radius: 50%; opacity: 0.3;"></div>
+        </div>
+        <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px;">
+          <div style="width: 8px; height: 8px; background: #60a5fa; border-radius: 50%;"></div>
+          <div style="width: 8px; height: 8px; background: #60a5fa; border-radius: 50%;"></div>
+          <div style="width: 8px; height: 8px; background: #60a5fa; border-radius: 50%;"></div>
+        </div>
+
+        <!-- Left virtual joystick -->
+        <div style="position: absolute; bottom: 20px; left: 24px;">
+          <div style="width: 90px; height: 90px; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div>
+          </div>
+          <p style="color: rgba(255,255,255,0.3); font-size: 9px; text-align: center; margin: 4px 0 0 0; letter-spacing: 1px;">MOVE</p>
+        </div>
+
+        <!-- Right side: Fan layout around primary button -->
+        <div style="position: absolute; bottom: 14px; right: 14px;">
+          <!-- Primary: LIGHT (large, bottom-right anchor) -->
+          <div style="position: absolute; bottom: 0; right: 0; width: 88px; height: 88px; border: 2px solid #f59e0b; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(245,158,11,0.12);">
+            <svg width="24" height="24" viewBox="0 0 20 20" style="margin-bottom: 2px;">
+              <path d="M6 14 L14 6" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M10 6 L14 6 L14 10" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span style="color: #f59e0b; font-size: 10px; font-weight: bold; letter-spacing: 1px;">LIGHT</span>
+          </div>
+
+          <!-- Fan buttons: positioned relative to primary button center -->
+          <!-- SUCK: left of primary (9 o'clock position on fan) -->
+          <div style="position: absolute; bottom: 18px; right: 102px; width: 58px; height: 58px; border: 2px solid #a855f7; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(168,85,247,0.12);">
+            <svg width="16" height="16" viewBox="0 0 22 22" style="margin-bottom: 1px;">
+              <circle cx="11" cy="11" r="7" stroke="#a855f7" stroke-width="2" fill="none"/>
+              <circle cx="11" cy="11" r="3" fill="#a855f7"/>
+            </svg>
+            <span style="color: #a855f7; font-size: 8px; font-weight: bold; letter-spacing: 0.5px;">SUCK</span>
+          </div>
+
+          <!-- JUMP: upper-left of primary (10-11 o'clock position on fan) -->
+          <div style="position: absolute; bottom: 80px; right: 78px; width: 58px; height: 58px; border: 2px solid #22c55e; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(34,197,94,0.12);">
+            <svg width="16" height="16" viewBox="0 0 20 20" style="margin-bottom: 1px;">
+              <path d="M10 4 L10 16 M5 9 L10 4 L15 9" stroke="#22c55e" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span style="color: #22c55e; font-size: 8px; font-weight: bold; letter-spacing: 0.5px;">JUMP</span>
+          </div>
+
+          <!-- HEAVY: above primary (12 o'clock position on fan) -->
+          <div style="position: absolute; bottom: 100px; right: 10px; width: 58px; height: 58px; border: 2px solid #ef4444; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(239,68,68,0.12);">
+            <svg width="16" height="16" viewBox="0 0 22 22" style="margin-bottom: 1px;">
+              <circle cx="11" cy="11" r="6" stroke="#ef4444" stroke-width="2" fill="none"/>
+              <line x1="4" y1="4" x2="18" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span style="color: #ef4444; font-size: 8px; font-weight: bold; letter-spacing: 0.5px;">HEAVY</span>
+          </div>
+        </div>
+
+        <p style="position: absolute; bottom: 4px; right: 14px; color: rgba(255,255,255,0.25); font-size: 8px; letter-spacing: 0.5px; margin: 0;">TAP = facing dir · FLICK = aim</p>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="padding: 12px; background: #1e293b; border-radius: 8px;">
+        <div class="label">Fan Layout</div>
+        <p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0; line-height: 1.5;">
+          Primary action (light attack) is the large bottom-right button — always under the thumb. Secondary buttons fan out: suck left, jump upper-left, heavy above.
+        </p>
+      </div>
+      <div style="padding: 12px; background: #1e293b; border-radius: 8px;">
+        <div class="label">Size Hierarchy</div>
+        <p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0; line-height: 1.5;">
+          Light attack: 88px (primary, most used). Jump / Heavy / Suck: 58px (secondary). Visual weight matches usage frequency.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
