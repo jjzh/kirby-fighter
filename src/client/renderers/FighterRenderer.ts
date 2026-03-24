@@ -113,7 +113,7 @@ export class FighterRenderer {
         barY
       );
       seg.setFillStyle(
-        state.suckShield > s ? PLAYER_COLORS[this.index] : 0x333333
+        s < SUCK_SHIELD_MAX - state.suckShield ? PLAYER_COLORS[this.index] : 0x333333
       );
       seg.setVisible(state.suck.capturedBy < 0); // hide when captured
     }
