@@ -117,6 +117,39 @@ describe('processAttack', () => {
   });
 });
 
+describe('processAttack aimDirection', () => {
+  it('captures aimDirection on light attack start', () => {
+    const f = new Fighter(0, 500, 580);
+    f.facingRight = true;
+    const input = { ...NULL_INPUT, light: true, up: true };
+    processAttack(f, input);
+    expect(f.action).toBe(FighterAction.AttackLight);
+    expect(f.aimDirection.y).toBe(-1);
+  });
+
+  it('updates aimDirection each frame during ChargeHeavy', () => {
+    const f = new Fighter(0, 500, 580);
+    f.facingRight = true;
+    f.action = FighterAction.ChargeHeavy;
+    f.actionFrame = 5;
+    const input = { ...NULL_INPUT, heavy: true, up: true };
+    processAttack(f, input);
+    expect(f.action).toBe(FighterAction.ChargeHeavy);
+    expect(f.aimDirection.y).toBe(-1);
+  });
+
+  it('locks aimDirection on heavy release', () => {
+    const f = new Fighter(0, 500, 580);
+    f.facingRight = true;
+    f.action = FighterAction.ChargeHeavy;
+    f.actionFrame = 20;
+    const input = { ...NULL_INPUT, up: true }; // heavy released, aiming up
+    processAttack(f, input);
+    expect(f.action).toBe(FighterAction.AttackHeavy);
+    expect(f.aimDirection.y).toBe(-1);
+  });
+});
+
 describe('applyKnockback', () => {
   it('applies velocity with upward bonus', () => {
     const f = new Fighter(0, 500, 580);

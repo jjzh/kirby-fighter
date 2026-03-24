@@ -138,10 +138,14 @@ export function calculateKnockback(base: number, scaling: number, damage: number
 export function processAttack(fighter: Fighter, input: InputState): void {
   // Handle charge release → fire heavy attack
   if (fighter.action === FighterAction.ChargeHeavy) {
+    // Update aim preview every frame during charge
+    fighter.aimDirection = getAimDirection(input, fighter.facingRight);
     if (!input.heavy) {
-      // Released — store charge duration, fire the heavy attack
+      // Released — capture final aim, store charge duration, fire the heavy attack
       fighter.heavyChargeFrames = fighter.actionFrame;
+      const finalAim = { ...fighter.aimDirection };
       fighter.setAction(FighterAction.AttackHeavy);
+      fighter.aimDirection = finalAim; // restore after setAction reset
     }
     return;
   }
@@ -159,9 +163,12 @@ export function processAttack(fighter: Fighter, input: InputState): void {
   const heavyJustPressed = input.heavy && !fighter.prevHeavyPressed;
 
   if (lightJustPressed) {
+    const aim = getAimDirection(input, fighter.facingRight);
     fighter.setAction(FighterAction.AttackLight);
+    fighter.aimDirection = aim;
   } else if (heavyJustPressed) {
     fighter.setAction(FighterAction.ChargeHeavy);
+    fighter.aimDirection = getAimDirection(input, fighter.facingRight);
   }
 }
 
