@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GameSimulation } from '@simulation/GameSimulation';
-import { STAGE, DEFAULT_MATCH, CANVAS_W, CANVAS_H } from '@simulation/constants';
+import { STAGE, DEFAULT_MATCH, CANVAS_W, CANVAS_H, FIGHTER_H } from '@simulation/constants';
 import { type InputState, NULL_INPUT } from '@simulation/types';
 import { StageRenderer } from '../renderers/StageRenderer';
 import { FighterRenderer } from '../renderers/FighterRenderer';
@@ -120,6 +120,24 @@ export class GameScene extends Phaser.Scene {
       this.fighterRenderers[i].update(snap.fighters[i]);
     }
     this.hudRenderer.update(snap);
+
+    // Mobile: camera follows local player (P1)
+    if (this.isTouchDevice) {
+      const p1 = snap.fighters[0];
+      const cam = this.cameras.main;
+      const viewW = CANVAS_W / cam.zoom;
+      const viewH = CANVAS_H / cam.zoom;
+
+      let targetX = p1.x - viewW / 2;
+      let targetY = (p1.y - FIGHTER_H / 2) - viewH / 2;
+
+      // Clamp so camera stays within the game area
+      targetX = Math.max(0, Math.min(targetX, CANVAS_W - viewW));
+      targetY = Math.max(-50, Math.min(targetY, CANVAS_H - viewH + 50));
+
+      cam.scrollX += (targetX - cam.scrollX) * 0.08;
+      cam.scrollY += (targetY - cam.scrollY) * 0.08;
+    }
 
     // Check for match end
     if (snap.matchPhase === 'ended') {
