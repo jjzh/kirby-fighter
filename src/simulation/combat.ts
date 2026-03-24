@@ -55,6 +55,9 @@ const ATTACK_DATA: Record<string, AttackData> = {
   },
 };
 
+/** Default launch angle (radians above horizontal) when no vertical input is held */
+const DEFAULT_LAUNCH_ANGLE = Math.PI / 6; // 30 degrees up
+
 export function getAimDirection(input: InputState, facingRight: boolean): Vec2 {
   let dx = 0;
   let dy = 0;
@@ -62,9 +65,19 @@ export function getAimDirection(input: InputState, facingRight: boolean): Vec2 {
   if (input.right) dx += 1;
   if (input.up) dy -= 1;
   if (input.down) dy += 1;
+
   if (dx === 0 && dy === 0) {
-    dx = facingRight ? 1 : -1;
+    // No input — launch at default angle (up and away)
+    const sign = facingRight ? 1 : -1;
+    dx = sign * Math.cos(DEFAULT_LAUNCH_ANGLE);
+    dy = -Math.sin(DEFAULT_LAUNCH_ANGLE);
+  } else if (dy === 0 && dx !== 0) {
+    // Pure horizontal input — still mix in upward angle
+    const sign = dx > 0 ? 1 : -1;
+    dx = sign * Math.cos(DEFAULT_LAUNCH_ANGLE);
+    dy = -Math.sin(DEFAULT_LAUNCH_ANGLE);
   }
+
   const len = Math.sqrt(dx * dx + dy * dy);
   return { x: dx / len, y: dy / len };
 }

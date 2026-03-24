@@ -11,10 +11,11 @@ import {
 } from '../constants';
 
 describe('getAimDirection', () => {
-  it('returns facing direction when no directional input', () => {
+  it('returns angled launch direction when no directional input', () => {
     const dir = getAimDirection(NULL_INPUT, true);
-    expect(dir.x).toBe(1);
-    expect(dir.y).toBe(0);
+    expect(dir.x).toBeGreaterThan(0); // Forward
+    expect(dir.y).toBeLessThan(0); // Upward
+    expect(Math.sqrt(dir.x * dir.x + dir.y * dir.y)).toBeCloseTo(1); // Normalized
   });
 
   it('aims up when up is held', () => {
