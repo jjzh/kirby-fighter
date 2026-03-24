@@ -1,8 +1,6 @@
 import Phaser from 'phaser';
-import { FighterAction, AttackPhase, type FighterSnapshot } from '@simulation/types';
-import { PLAYER_COLORS, FIGHTER_H, FIGHTER_W, INHALE_CONE_HALF_ANGLE, INHALE_MIN_RANGE, INHALE_MAX_RANGE, INHALE_RAMP_FRAMES, SUCK_RANGE_TABLE, SUCK_SHIELD_MAX } from '@simulation/constants';
-import { getAttackHitbox, getAttackPhase, getHurtbox, type Rect } from '@simulation/combat';
-import { Fighter } from '@simulation/Fighter';
+import { FighterAction, type FighterSnapshot } from '@simulation/types';
+import { FIGHTER_H } from '@simulation/constants';
 
 const AIM_ROTATION_CLAMP_DEG = 70;
 
@@ -39,11 +37,9 @@ const SHIELD_BAR_Y_OFFSET = -8; // above the sprite top
 
 export class FighterRenderer {
   private sprite: Phaser.GameObjects.Sprite;
-  private debugGfx: Phaser.GameObjects.Graphics;
   private shieldSegments: Phaser.GameObjects.Rectangle[] = [];
   private currentAnim = '';
   private index: number;
-  static showHitboxes = true;
 
   constructor(scene: Phaser.Scene, index: number) {
     this.index = index;
@@ -58,9 +54,6 @@ export class FighterRenderer {
       seg.setDepth(200);
       this.shieldSegments.push(seg);
     }
-
-    this.debugGfx = scene.add.graphics();
-    this.debugGfx.setDepth(100);
 
     // Create all animations (only once, first renderer creates them)
     if (!scene.anims.exists('kirby_idle')) {
@@ -94,7 +87,7 @@ export class FighterRenderer {
   }
 
   getGameObjects(): Phaser.GameObjects.GameObject[] {
-    return [this.sprite, ...this.shieldSegments, this.debugGfx];
+    return [this.sprite, ...this.shieldSegments];
   }
 
   update(state: FighterSnapshot): void {
@@ -187,70 +180,5 @@ export class FighterRenderer {
       this.sprite.play(animName);
     }
 
-    // Debug hitbox visualization
-    this.debugGfx.clear();
-    if (!FighterRenderer.showHitboxes) return;
-
-    const tempFighter = new Fighter(state.colorIndex, state.x, state.y);
-    tempFighter.facingRight = state.facingRight;
-    tempFighter.action = state.action;
-    tempFighter.actionFrame = state.actionFrame;
-    tempFighter.aimDirection = state.aimDirection;
-
-    // Hurtbox — green outline
-    const hurtbox = getHurtbox(tempFighter);
-    this.debugGfx.lineStyle(1, 0x00FF00, 0.5);
-    this.drawRect(hurtbox);
-
-    // Attack hitbox
-    const phase = getAttackPhase(tempFighter);
-    if (phase !== null) {
-      const attackType = state.action === FighterAction.AttackLight ? 'light' : 'heavy';
-      const hitbox = getAttackHitbox(tempFighter, attackType);
-      if (phase === AttackPhase.Active) {
-        this.debugGfx.fillStyle(0xFF0000, 0.3);
-        this.fillRect(hitbox);
-        this.debugGfx.lineStyle(2, 0xFF0000, 0.8);
-        this.drawRect(hitbox);
-      } else if (phase === AttackPhase.Startup) {
-        this.debugGfx.lineStyle(1, 0xFFFF00, 0.4);
-        this.drawRect(hitbox);
-      }
-    }
-
-    // Suck cone — grows from inner to middle range over 0.5s
-    if (state.action === FighterAction.Inhale) {
-      const dir = state.facingRight ? 1 : -1;
-      const ox = state.x;
-      const oy = state.y - FIGHTER_H / 2;
-      const t = Math.min(state.actionFrame / INHALE_RAMP_FRAMES, 1);
-      const currentRange = INHALE_MIN_RANGE + t * (INHALE_MAX_RANGE - INHALE_MIN_RANGE);
-
-      // Max range outline (faint)
-      this.drawCone(ox, oy, dir, INHALE_MAX_RANGE, 0x4444FF, 0.05);
-      // Current range (solid)
-      this.drawCone(ox, oy, dir, currentRange, 0x4444FF, 0.15);
-    }
-  }
-
-  private drawRect(r: Rect): void {
-    this.debugGfx.strokeRect(r.x - r.w / 2, r.y - r.h / 2, r.w, r.h);
-  }
-
-  private fillRect(r: Rect): void {
-    this.debugGfx.fillRect(r.x - r.w / 2, r.y - r.h / 2, r.w, r.h);
-  }
-
-  private drawCone(ox: number, oy: number, dir: number, range: number, color: number, alpha: number): void {
-    const endY1 = oy - Math.sin(INHALE_CONE_HALF_ANGLE) * range;
-    const endY2 = oy + Math.sin(INHALE_CONE_HALF_ANGLE) * range;
-    const endX = ox + dir * Math.cos(INHALE_CONE_HALF_ANGLE) * range;
-    this.debugGfx.fillStyle(color, alpha);
-    this.debugGfx.beginPath();
-    this.debugGfx.moveTo(ox, oy);
-    this.debugGfx.lineTo(endX, endY1);
-    this.debugGfx.lineTo(endX, endY2);
-    this.debugGfx.closePath();
-    this.debugGfx.fillPath();
   }
 }
