@@ -51,7 +51,7 @@ animations = {
         (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5),  # Kick sequence
     ],
     "inhale": [
-        (5, 2), (5, 3),  # Mouth open, sucking
+        (13, 8), (13, 9), (13, 10), (13, 11), (13, 12),  # Row 13 inhale/special
     ],
     "capture": [
         (15, 0), (15, 1),  # Puffed up holding someone
