@@ -20,6 +20,74 @@ const BUTTON_ALPHA = 0.3;
 const BUTTON_PRESSED_ALPHA = 0.6;
 const UI_DEPTH = 1000;
 
+// Pixel-art icon grids ('#' = filled pixel)
+const BUTTON_ICONS: Record<string, string[]> = {
+  light: [ // Compact diamond — quick jab
+    '...#...',
+    '..###..',
+    '.#####.',
+    '#######',
+    '.#####.',
+    '..###..',
+    '...#...',
+  ],
+  heavy: [ // Spiky starburst — big impact
+    '#..#..#',
+    '.#.#.#.',
+    '..###..',
+    '#######',
+    '..###..',
+    '.#.#.#.',
+    '#..#..#',
+  ],
+  jump: [ // Upward chevron
+    '...#...',
+    '..###..',
+    '.##.##.',
+    '##...##',
+  ],
+  suck: [ // Converging lines — inhale pull
+    '#.....#',
+    '.#...#.',
+    '..#.#..',
+    '...#...',
+    '..#.#..',
+    '.#...#.',
+    '#.....#',
+  ],
+};
+
+function drawPixelIcon(
+  scene: Phaser.Scene, key: string, x: number, y: number, radius: number,
+): Phaser.GameObjects.Graphics {
+  const g = scene.add.graphics();
+  g.setDepth(UI_DEPTH + 1).setAlpha(0.7);
+
+  const grid = BUTTON_ICONS[key];
+  if (!grid) return g;
+
+  const px = Math.max(3, Math.round(radius / 12));
+  const rows = grid.length;
+  const cols = grid[0].length;
+  const startX = x - ((cols - 1) * px) / 2;
+  const startY = y - ((rows - 1) * px) / 2;
+
+  g.fillStyle(0xFFFFFF);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c] === '#') {
+        g.fillRect(
+          startX + c * px - px / 2,
+          startY + r * px - px / 2,
+          px, px,
+        );
+      }
+    }
+  }
+
+  return g;
+}
+
 interface ButtonDef {
   key: keyof InputState;
   x: number;
@@ -81,13 +149,8 @@ export class TouchInput {
       btn.graphic = scene.add.circle(btn.x, btn.y, btn.radius, btn.color, BUTTON_ALPHA);
       btn.graphic.setDepth(UI_DEPTH).setStrokeStyle(2, 0xFFFFFF, 0.25);
 
-      const label = scene.add.text(btn.x, btn.y, btn.label, {
-        fontSize: btn.radius > 40 ? '22px' : '16px',
-        color: '#FFFFFF',
-        fontFamily: 'monospace',
-      }).setOrigin(0.5).setDepth(UI_DEPTH + 1).setAlpha(0.6);
-
-      this.uiObjects.push(btn.graphic, label);
+      const icon = drawPixelIcon(scene, btn.key, btn.x, btn.y, btn.radius);
+      this.uiObjects.push(btn.graphic, icon);
     }
   }
 
