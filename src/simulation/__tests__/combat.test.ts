@@ -144,3 +144,30 @@ describe('applyKnockback', () => {
     expect(f.velocityY).toBeLessThan(0); // Forced upward despite downward aim
   });
 });
+
+describe('aimDirection reset', () => {
+  it('resets aimDirection to facing direction on non-attack state', () => {
+    const f = new Fighter(0, 500, 580);
+    f.facingRight = true;
+    f.aimDirection = { x: 0, y: -1 };
+    f.setAction(FighterAction.Hitstun);
+    expect(f.aimDirection).toEqual({ x: 1, y: 0 });
+  });
+
+  it('preserves aimDirection when transitioning between attack states', () => {
+    const f = new Fighter(0, 500, 580);
+    f.aimDirection = { x: 0, y: -1 };
+    f.action = FighterAction.ChargeHeavy;
+    f.setAction(FighterAction.AttackHeavy);
+    expect(f.aimDirection).toEqual({ x: 0, y: -1 });
+  });
+
+  it('resets to left when facing left', () => {
+    const f = new Fighter(0, 500, 580);
+    f.facingRight = false;
+    f.aimDirection = { x: 0, y: -1 };
+    f.action = FighterAction.Airborne; // put in a different state so setAction fires
+    f.setAction(FighterAction.Idle);
+    expect(f.aimDirection).toEqual({ x: -1, y: 0 });
+  });
+});

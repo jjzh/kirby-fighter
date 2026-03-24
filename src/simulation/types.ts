@@ -113,4 +113,5 @@ export interface FighterSnapshot {
   colorIndex: number;
   /** Whether this fighter has used their double jump */
   doubleJumpUsed: boolean;
+  aimDirection: Vec2;
 }

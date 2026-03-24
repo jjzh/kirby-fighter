@@ -1,4 +1,4 @@
-import { FighterAction, type FighterSnapshot, type SuckState } from './types';
+import { FighterAction, type FighterSnapshot, type SuckState, type Vec2 } from './types';
 import { DEFAULT_MATCH } from './constants';
 
 function createSuckState(): SuckState {
@@ -27,6 +27,7 @@ export class Fighter {
   doubleJumpUsed = false;
   /** Frames spent charging heavy attack (preserved when transitioning to AttackHeavy) */
   heavyChargeFrames = 0;
+  aimDirection: Vec2 = { x: 1, y: 0 };
   suck: SuckState;
 
   prevJumpPressed = false;
@@ -42,10 +43,19 @@ export class Fighter {
     this.suck = createSuckState();
   }
 
+  private static readonly AIMED_ACTIONS = new Set([
+    FighterAction.AttackLight,
+    FighterAction.AttackHeavy,
+    FighterAction.ChargeHeavy,
+  ]);
+
   setAction(action: FighterAction): void {
     if (this.action !== action) {
       this.action = action;
       this.actionFrame = 0;
+      if (!Fighter.AIMED_ACTIONS.has(action)) {
+        this.aimDirection = { x: this.facingRight ? 1 : -1, y: 0 };
+      }
     }
   }
 
@@ -73,6 +83,7 @@ export class Fighter {
     this.actionFrame = 0;
     this.invincibleFrames = invincibleFrames;
     this.doubleJumpUsed = false;
+    this.aimDirection = { x: 1, y: 0 };
     this.resetSuckState();
   }
 
@@ -91,6 +102,7 @@ export class Fighter {
       suck: { ...this.suck, projectileVelocity: { ...this.suck.projectileVelocity } },
       colorIndex: this.colorIndex,
       doubleJumpUsed: this.doubleJumpUsed,
+      aimDirection: { ...this.aimDirection },
     };
   }
 }
