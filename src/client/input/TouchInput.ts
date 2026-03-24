@@ -39,6 +39,11 @@ export class TouchInput {
   private joystickThumb: Phaser.GameObjects.Arc;
   private uiObjects: Phaser.GameObjects.GameObject[] = [];
 
+  // Floating joystick: origin follows where the thumb lands
+  private joystickOriginX = JOYSTICK_X;
+  private joystickOriginY = JOYSTICK_Y;
+  private joystickPointerId = -1;
+
   // Buttons: fan layout per spec
   //   Light (primary, large): bottom-right, always under thumb
   //   Suck:  9 o'clock (directly left)
@@ -108,6 +113,14 @@ export class TouchInput {
       // Left side → joystick
       if (px < JOYSTICK_ZONE_RIGHT) {
         joystickPointer = pointer;
+
+        // New touch — snap floating origin to where the thumb landed
+        if (pointer.id !== this.joystickPointerId) {
+          this.joystickPointerId = pointer.id;
+          this.joystickOriginX = px;
+          this.joystickOriginY = py;
+          this.joystickBase.setPosition(px, py);
+        }
         continue;
       }
 
@@ -122,17 +135,17 @@ export class TouchInput {
       }
     }
 
-    // -- Process joystick --
+    // -- Process joystick (relative to floating origin) --
     if (joystickPointer) {
-      const dx = joystickPointer.x - JOYSTICK_X;
-      const dy = joystickPointer.y - JOYSTICK_Y;
+      const dx = joystickPointer.x - this.joystickOriginX;
+      const dy = joystickPointer.y - this.joystickOriginY;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist > JOYSTICK_DEADZONE) {
         const clamped = Math.min(dist, JOYSTICK_MAX_RADIUS);
         const nx = (dx / dist) * clamped;
         const ny = (dy / dist) * clamped;
-        this.joystickThumb.setPosition(JOYSTICK_X + nx, JOYSTICK_Y + ny);
+        this.joystickThumb.setPosition(this.joystickOriginX + nx, this.joystickOriginY + ny);
 
         // Set directional booleans (45° threshold per axis)
         if (Math.abs(dx) > Math.abs(dy) * 0.5) {
@@ -144,9 +157,14 @@ export class TouchInput {
           state.down = dy > 0;
         }
       } else {
-        this.joystickThumb.setPosition(JOYSTICK_X, JOYSTICK_Y);
+        this.joystickThumb.setPosition(this.joystickOriginX, this.joystickOriginY);
       }
     } else {
+      // No touch — reset to default position
+      this.joystickPointerId = -1;
+      this.joystickOriginX = JOYSTICK_X;
+      this.joystickOriginY = JOYSTICK_Y;
+      this.joystickBase.setPosition(JOYSTICK_X, JOYSTICK_Y);
       this.joystickThumb.setPosition(JOYSTICK_X, JOYSTICK_Y);
     }
 
