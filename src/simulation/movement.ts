@@ -84,17 +84,25 @@ export function processJump(fighter: Fighter, input: InputState, stage: Stage): 
 
   const canJump = fighter.action === FighterAction.Idle ||
                   fighter.action === FighterAction.Run ||
-                  fighter.action === FighterAction.Airborne;
+                  fighter.action === FighterAction.Airborne ||
+                  fighter.action === FighterAction.CaptureHold;
   if (!canJump) return;
 
   const isGrounded = stage.isOnGround(fighter.x, fighter.y) &&
                      fighter.action !== FighterAction.Airborne;
 
+  // Half-height jump while holding a captured fighter
+  const holdingEnemy = fighter.action === FighterAction.CaptureHold;
+  const jumpVel = holdingEnemy ? JUMP_VELOCITY / 2 : JUMP_VELOCITY;
+  const doubleJumpVel = holdingEnemy ? DOUBLE_JUMP_VELOCITY / 2 : DOUBLE_JUMP_VELOCITY;
+
   if (isGrounded) {
-    fighter.velocityY = JUMP_VELOCITY;
-    fighter.setAction(FighterAction.Airborne);
-  } else if (fighter.action === FighterAction.Airborne && !fighter.doubleJumpUsed) {
-    fighter.velocityY = DOUBLE_JUMP_VELOCITY;
+    fighter.velocityY = jumpVel;
+    if (!holdingEnemy) {
+      fighter.setAction(FighterAction.Airborne);
+    }
+  } else if (!fighter.doubleJumpUsed && (fighter.action === FighterAction.Airborne || holdingEnemy)) {
+    fighter.velocityY = doubleJumpVel;
     fighter.doubleJumpUsed = true;
   }
 }
