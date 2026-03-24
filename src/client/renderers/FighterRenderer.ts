@@ -87,9 +87,9 @@ export class FighterRenderer {
     const blinking = state.invincibleFrames > 0 && Math.floor(state.invincibleFrames / 4) % 2 === 0;
     this.sprite.setAlpha(blinking ? 0.4 : 1);
 
-    // Captured — shrink
+    // Captured — hidden inside the captor
     if (state.suck.capturedBy >= 0) {
-      this.sprite.setScale(0.4);
+      this.sprite.setAlpha(0);
       return;
     }
 
