@@ -232,6 +232,7 @@ export class GameSimulation {
       if (victim.action !== FighterAction.Dead) {
         victim.setAction(FighterAction.Airborne);
         victim.resetSuckState();
+        victim.resetSuckShield();
       }
     }
 

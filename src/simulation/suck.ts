@@ -90,6 +90,7 @@ export function releaseCapture(sucker: Fighter, victim: Fighter): void {
   sucker.resetSuckState();
   victim.setAction(FighterAction.Airborne);
   victim.resetSuckState();
+  victim.resetSuckShield();
   victim.x = sucker.x + (sucker.facingRight ? 50 : -50);
 }
 
@@ -131,6 +132,7 @@ export function tickProjectile(fighter: Fighter, stage: Stage): void {
     fighter.velocityY = hitGround ? 0 : fighter.suck.projectileVelocity.y * 0.3;
     fighter.setAction(hitGround ? FighterAction.Idle : FighterAction.Airborne);
     fighter.resetSuckState();
+    fighter.resetSuckShield();
   }
 }
 
@@ -167,10 +169,12 @@ export function applyProjectileImpact(
   target.velocityX = dir.x * knockback;
   target.velocityY = dir.y * knockback;
   target.setAction(FighterAction.Hitstun);
+  target.suckShield = Math.max(0, target.suckShield - 1);
 
   projectile.damage += PROJECTILE_SELF_DAMAGE;
   projectile.velocityX = 0;
   projectile.velocityY = 0;
   projectile.setAction(FighterAction.Airborne);
   projectile.resetSuckState();
+  projectile.resetSuckShield();
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   isInInhaleCone, processInhale, processCapture,
-  launchProjectile, tickProjectile,
+  launchProjectile, tickProjectile, releaseCapture, startCapture, applyProjectileImpact,
 } from '../suck';
 import { Fighter } from '../Fighter';
 import { Stage } from '../Stage';
@@ -9,7 +9,7 @@ import { FighterAction, NULL_INPUT } from '../types';
 import {
   STAGE,
   CAPTURE_MIN_HOLD_FRAMES, PROJECTILE_SELF_DAMAGE,
-  PROJECTILE_CONTROL_REGAIN_FRAMES,
+  PROJECTILE_CONTROL_REGAIN_FRAMES, SUCK_SHIELD_MAX,
 } from '../constants';
 
 describe('isInInhaleCone', () => {
@@ -126,5 +126,43 @@ describe('tickProjectile', () => {
 
   it('applies self-damage on projectile impact (tested via GameSimulation)', () => {
     expect(PROJECTILE_SELF_DAMAGE).toBe(5);
+  });
+});
+
+describe('suck shield reset', () => {
+  it('resets shield on mash escape (releaseCapture)', () => {
+    const sucker = new Fighter(0, 500, 580);
+    const victim = new Fighter(1, 500, 580);
+    victim.suckShield = 0;
+    startCapture(sucker, victim, 1, 0);
+
+    releaseCapture(sucker, victim);
+    expect(victim.suckShield).toBe(SUCK_SHIELD_MAX);
+  });
+
+  it('resets shield on projectile timer expiry', () => {
+    const stage = new Stage(STAGE);
+    const f = new Fighter(0, 500, 400);
+    f.suckShield = 0;
+    f.action = FighterAction.Projectile;
+    f.suck.projectileTimer = 1;
+    f.suck.projectileVelocity = { x: 10, y: 0 };
+
+    tickProjectile(f, stage);
+    expect(f.action).not.toBe(FighterAction.Projectile);
+    expect(f.suckShield).toBe(SUCK_SHIELD_MAX);
+  });
+
+  it('resets projectile shield and decrements target shield on impact', () => {
+    const projectile = new Fighter(0, 500, 580);
+    const target = new Fighter(1, 520, 580);
+    projectile.suckShield = 0;
+    projectile.action = FighterAction.Projectile;
+    projectile.suck.projectileVelocity = { x: 10, y: 0 };
+    target.suckShield = SUCK_SHIELD_MAX;
+
+    applyProjectileImpact(projectile, target);
+    expect(projectile.suckShield).toBe(SUCK_SHIELD_MAX);
+    expect(target.suckShield).toBe(SUCK_SHIELD_MAX - 1);
   });
 });
