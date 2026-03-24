@@ -9,6 +9,13 @@ const config: Phaser.Types.Core.GameConfig = {
   height: CANVAS_H,
   backgroundColor: '#0f0f23',
   parent: document.body,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  input: {
+    touch: true,
+  },
   scene: [GameScene, ResultScene],
 };
 

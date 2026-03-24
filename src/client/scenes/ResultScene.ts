@@ -21,13 +21,19 @@ export class ResultScene extends Phaser.Scene {
       }).setOrigin(0.5);
     }
 
-    this.add.text(CANVAS_W / 2, CANVAS_H / 2 + 40, 'Press ENTER to rematch', {
+    const isTouchDevice = this.sys.game.device.input.touch;
+    this.add.text(CANVAS_W / 2, CANVAS_H / 2 + 40,
+      isTouchDevice ? 'Tap to rematch' : 'Press ENTER to rematch', {
       fontSize: '20px',
       color: '#AAAAAA',
       fontFamily: 'monospace',
     }).setOrigin(0.5);
 
     this.input.keyboard!.on('keydown-ENTER', () => {
+      this.scene.start('GameScene');
+    });
+
+    this.input.on('pointerdown', () => {
       this.scene.start('GameScene');
     });
   }
