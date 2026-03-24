@@ -100,7 +100,7 @@ export class FighterRenderer {
       const cross = state.aimDirection.y * forwardX;
       let angleDeg = Math.atan2(cross, dot) * (180 / Math.PI);
       angleDeg = Math.max(-AIM_ROTATION_CLAMP_DEG, Math.min(AIM_ROTATION_CLAMP_DEG, angleDeg));
-      this.sprite.angle = state.facingRight ? -angleDeg : angleDeg;
+      this.sprite.angle = state.facingRight ? angleDeg : -angleDeg;
     } else {
       this.sprite.angle = 0;
     }
