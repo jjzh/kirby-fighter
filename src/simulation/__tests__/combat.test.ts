@@ -118,20 +118,29 @@ describe('processAttack', () => {
 });
 
 describe('applyKnockback', () => {
-  it('applies velocity in the given direction', () => {
+  it('applies velocity with upward bonus', () => {
     const f = new Fighter(0, 500, 580);
     applyKnockback(f, 10, { x: 1, y: 0 });
     expect(f.velocityX).toBe(10);
-    expect(f.velocityY).toBe(0);
+    expect(f.velocityY).toBeLessThan(0); // Upward bonus applied
     expect(f.action).toBe(FighterAction.Hitstun);
   });
 
-  it('applies diagonal knockback', () => {
+  it('amplifies upward bonus when aiming up', () => {
     const f = new Fighter(0, 500, 580);
-    const mag = 10;
-    const dir = { x: 0.707, y: -0.707 };
-    applyKnockback(f, mag, dir);
-    expect(f.velocityX).toBeCloseTo(7.07);
-    expect(f.velocityY).toBeCloseTo(-7.07);
+    applyKnockback(f, 10, { x: 0, y: -1 });
+    expect(f.velocityY).toBeLessThan(-10); // Base -10 + amplified bonus
+  });
+
+  it('suppresses upward bonus when aiming down (spike)', () => {
+    const f = new Fighter(0, 500, 580);
+    applyKnockback(f, 10, { x: 0, y: 1 });
+    expect(f.velocityY).toBe(10); // No bonus — spike goes straight down
+  });
+
+  it('forces minimum launch angle when grounded', () => {
+    const f = new Fighter(0, 500, 580);
+    applyKnockback(f, 10, { x: 1, y: 0.5 }, true); // Aiming slightly down, grounded
+    expect(f.velocityY).toBeLessThan(0); // Forced upward despite downward aim
   });
 });

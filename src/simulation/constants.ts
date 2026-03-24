@@ -62,6 +62,10 @@ export const HEAVY_CHARGE_MAX_FRAMES = 60; // Full charge at 1 second
 
 // -- Knockback --
 export const HITSTUN_MULTIPLIER = 3;
+export const KNOCKBACK_UPWARD_BONUS = -3.5; // Flat upward velocity added to all knockback
+export const KNOCKBACK_UP_AIM_BONUS_MULT = 1.5; // Bonus amplified when aiming up
+export const KNOCKBACK_DOWN_AIM_BONUS_MULT = 0; // Bonus suppressed when aiming down (spikes)
+export const KNOCKBACK_MIN_LAUNCH_ANGLE = Math.PI / 9; // ~20° minimum when grounded
 
 // -- Suck Mechanic --
 export const INHALE_CONE_HALF_ANGLE = Math.PI / 6;

@@ -9,6 +9,8 @@ import {
   HEAVY_CHARGE_MIN_MULTIPLIER, HEAVY_CHARGE_MAX_FRAMES,
   HEAVY_HITBOX_W, HEAVY_HITBOX_H, HEAVY_HITBOX_OFFSET_X,
   HITSTUN_MULTIPLIER, FIGHTER_H,
+  KNOCKBACK_UPWARD_BONUS, KNOCKBACK_UP_AIM_BONUS_MULT,
+  KNOCKBACK_DOWN_AIM_BONUS_MULT, KNOCKBACK_MIN_LAUNCH_ANGLE,
 } from './constants';
 
 export interface Rect {
@@ -172,9 +174,29 @@ export function tickAttack(fighter: Fighter): void {
   }
 }
 
-export function applyKnockback(fighter: Fighter, magnitude: number, direction: Vec2): void {
-  fighter.velocityX = direction.x * magnitude;
-  fighter.velocityY = direction.y * magnitude;
+export function applyKnockback(fighter: Fighter, magnitude: number, direction: Vec2, isGrounded = false): void {
+  let vx = direction.x * magnitude;
+  let vy = direction.y * magnitude;
+
+  // Scale upward bonus by aim direction:
+  // aiming up → amplified, aiming down → suppressed
+  let bonusMult = 1;
+  if (direction.y < -0.3) {
+    bonusMult = KNOCKBACK_UP_AIM_BONUS_MULT;   // Aiming up — bonus amplified
+  } else if (direction.y > 0.3) {
+    bonusMult = KNOCKBACK_DOWN_AIM_BONUS_MULT;  // Aiming down (spike) — bonus suppressed
+  }
+  vy += KNOCKBACK_UPWARD_BONUS * bonusMult;
+
+  // Force minimum launch angle when defender is grounded
+  if (isGrounded && vy >= 0) {
+    // Ensure at least some upward launch
+    const minVy = -Math.abs(vx) * Math.tan(KNOCKBACK_MIN_LAUNCH_ANGLE);
+    vy = Math.min(vy, minVy);
+  }
+
+  fighter.velocityX = vx;
+  fighter.velocityY = vy;
   fighter.setAction(FighterAction.Hitstun);
 }
 

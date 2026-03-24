@@ -181,7 +181,8 @@ export class GameSimulation {
           const knockbackMag = calculateKnockback(
             attackData.baseKnockback * chargeMult, attackData.knockbackScaling, defender.damage
           );
-          applyKnockback(defender, knockbackMag, aimDir);
+          const defenderGrounded = this.stage.isOnGround(defender.x, defender.y);
+          applyKnockback(defender, knockbackMag, aimDir, defenderGrounded);
           this.hitThisAttack.add(hitKey);
         }
       }
