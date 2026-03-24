@@ -21,6 +21,14 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
+  preload(): void {
+    this.load.atlas(
+      'fighter-kirby',
+      'assets/fighter-kirby.png',
+      'assets/fighter-kirby.json'
+    );
+  }
+
   create(): void {
     this.simulation = new GameSimulation(DEFAULT_MATCH, STAGE);
     this.stageRenderer = new StageRenderer(this);
