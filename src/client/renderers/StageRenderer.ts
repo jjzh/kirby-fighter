@@ -25,10 +25,6 @@ export class StageRenderer {
     const taperDepth = 80;
     const taperInset = 60;
 
-    // Sky background
-    g.fillStyle(0x0f0f23);
-    g.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
     // Main ground platform top surface
     g.fillStyle(0x8B4513);
     g.fillRect(left, groundY, right - left, platThick);
