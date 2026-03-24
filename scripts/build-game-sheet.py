@@ -45,10 +45,13 @@ animations = {
         (3, 4), (3, 5),  # Falling
     ],
     "light": [
-        (10, 2), (10, 3), (10, 4), (10, 5),  # Punch sequence
+        (12, 0), (12, 1), (12, 2), (12, 3),  # Row 12 items 0-3: quick attack
     ],
     "heavy": [
-        (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5),  # Kick sequence
+        (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6),  # Row 7 items 0-6
+    ],
+    "charge_heavy": [
+        (7, 1),  # Charge pauses on row 7 item 1
     ],
     "inhale": [
         (13, 7), (13, 8), (13, 9), (13, 10),  # Row 13 sorted L-R: puffed, mouth open
