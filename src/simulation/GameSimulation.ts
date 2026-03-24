@@ -203,12 +203,37 @@ export class GameSimulation {
     for (const fighter of this.fighters) {
       if (fighter.action === FighterAction.Dead) continue;
       if (this.stage.isInBlastZone(fighter.x, fighter.y)) {
+        // Clean up suck relationships before death/respawn
+        this.cleanupSuckRelationship(fighter);
+
         fighter.stocks--;
         if (fighter.stocks <= 0) {
           fighter.setAction(FighterAction.Dead);
+          fighter.resetSuckState();
         } else {
           fighter.respawn(RESPAWN_X, RESPAWN_Y, RESPAWN_INVINCIBILITY_FRAMES);
         }
+      }
+    }
+  }
+
+  /** When a fighter dies or respawns, clean up the other side of any suck relationship. */
+  private cleanupSuckRelationship(fighter: Fighter): void {
+    // If this fighter was the captor, free the victim
+    if (fighter.suck.capturedFighter >= 0) {
+      const victim = this.fighters[fighter.suck.capturedFighter];
+      if (victim.action !== FighterAction.Dead) {
+        victim.setAction(FighterAction.Airborne);
+        victim.resetSuckState();
+      }
+    }
+
+    // If this fighter was the captive, free the captor
+    if (fighter.suck.capturedBy >= 0) {
+      const captor = this.fighters[fighter.suck.capturedBy];
+      if (captor.action !== FighterAction.Dead) {
+        captor.setAction(captor.velocityY !== 0 ? FighterAction.Airborne : FighterAction.Idle);
+        captor.resetSuckState();
       }
     }
   }
