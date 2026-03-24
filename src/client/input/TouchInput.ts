@@ -2,19 +2,19 @@ import Phaser from 'phaser';
 import { type InputState, NULL_INPUT } from '@simulation/types';
 
 // -- Joystick layout --
-const JOYSTICK_X = 160;
-const JOYSTICK_Y = 560;
-const JOYSTICK_DEADZONE = 20;
-const JOYSTICK_MAX_RADIUS = 60;
+const JOYSTICK_X = 170;
+const JOYSTICK_Y = 530;
+const JOYSTICK_DEADZONE = 25;
+const JOYSTICK_MAX_RADIUS = 90;
 const JOYSTICK_ZONE_RIGHT = 500; // left portion of screen is joystick zone
 
 // -- Button layout (fan from primary in bottom-right) --
-const PRIMARY_RADIUS = 44;
-const SECONDARY_RADIUS = 29;
-const FAN_DISTANCE = 100;
+const PRIMARY_RADIUS = 56;
+const SECONDARY_RADIUS = 38;
+const FAN_DISTANCE = 120;
 
-const PRIMARY_X = 1150;
-const PRIMARY_Y = 610;
+const PRIMARY_X = 1110;
+const PRIMARY_Y = 580;
 
 const BUTTON_ALPHA = 0.3;
 const BUTTON_PRESSED_ALPHA = 0.6;
@@ -37,6 +37,7 @@ export class TouchInput {
   // Joystick visuals
   private joystickBase: Phaser.GameObjects.Arc;
   private joystickThumb: Phaser.GameObjects.Arc;
+  private uiObjects: Phaser.GameObjects.GameObject[] = [];
 
   // Buttons: fan layout per spec
   //   Light (primary, large): bottom-right, always under thumb
@@ -65,19 +66,23 @@ export class TouchInput {
     this.joystickBase = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, JOYSTICK_MAX_RADIUS, 0xFFFFFF, 0.12);
     this.joystickBase.setDepth(UI_DEPTH).setStrokeStyle(2, 0xFFFFFF, 0.25);
 
-    this.joystickThumb = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, 22, 0xFFFFFF, 0.35);
+    this.joystickThumb = scene.add.circle(JOYSTICK_X, JOYSTICK_Y, 32, 0xFFFFFF, 0.35);
     this.joystickThumb.setDepth(UI_DEPTH + 1);
+
+    this.uiObjects.push(this.joystickBase, this.joystickThumb);
 
     // -- Button visuals --
     for (const btn of this.buttons) {
       btn.graphic = scene.add.circle(btn.x, btn.y, btn.radius, btn.color, BUTTON_ALPHA);
       btn.graphic.setDepth(UI_DEPTH).setStrokeStyle(2, 0xFFFFFF, 0.25);
 
-      scene.add.text(btn.x, btn.y, btn.label, {
-        fontSize: btn.radius > 30 ? '20px' : '14px',
+      const label = scene.add.text(btn.x, btn.y, btn.label, {
+        fontSize: btn.radius > 40 ? '22px' : '16px',
         color: '#FFFFFF',
         fontFamily: 'monospace',
       }).setOrigin(0.5).setDepth(UI_DEPTH + 1).setAlpha(0.6);
+
+      this.uiObjects.push(btn.graphic, label);
     }
   }
 
@@ -151,5 +156,10 @@ export class TouchInput {
     }
 
     return state;
+  }
+
+  /** All UI game objects, for camera assignment. */
+  getGameObjects(): Phaser.GameObjects.GameObject[] {
+    return this.uiObjects;
   }
 }

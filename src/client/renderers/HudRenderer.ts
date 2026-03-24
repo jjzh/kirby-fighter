@@ -57,6 +57,14 @@ export class HudRenderer {
     }).setOrigin(0.5).setVisible(false);
   }
 
+  getGameObjects(): Phaser.GameObjects.GameObject[] {
+    const objects: Phaser.GameObjects.GameObject[] = [this.matchText];
+    for (const hud of this.playerHuds) {
+      objects.push(hud.nameText, hud.damageText, ...hud.stockDots);
+    }
+    return objects;
+  }
+
   update(snapshot: SimulationSnapshot): void {
     for (let i = 0; i < this.playerHuds.length; i++) {
       const hud = this.playerHuds[i];

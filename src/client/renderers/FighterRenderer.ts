@@ -77,6 +77,10 @@ export class FighterRenderer {
     }
   }
 
+  getGameObjects(): Phaser.GameObjects.GameObject[] {
+    return [this.sprite, this.debugGfx];
+  }
+
   update(state: FighterSnapshot): void {
     if (state.action === FighterAction.Dead && state.stocks <= 0) {
       this.sprite.setVisible(false);

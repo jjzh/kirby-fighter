@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GameSimulation } from '@simulation/GameSimulation';
-import { STAGE, DEFAULT_MATCH } from '@simulation/constants';
+import { STAGE, DEFAULT_MATCH, CANVAS_W, CANVAS_H } from '@simulation/constants';
 import { type InputState, NULL_INPUT } from '@simulation/types';
 import { StageRenderer } from '../renderers/StageRenderer';
 import { FighterRenderer } from '../renderers/FighterRenderer';
@@ -54,6 +54,7 @@ export class GameScene extends Phaser.Scene {
     this.hudRenderer = new HudRenderer(this, snap.fighters.length);
 
     // Controls reference — only show on non-touch (keyboard) devices
+    const uiExtras: Phaser.GameObjects.GameObject[] = [];
     if (!this.isTouchDevice) {
       const controlsP1 = this.add.text(20, 20,
         'P1: WASD move | Space jump | J light | K heavy | L suck', {
@@ -63,11 +64,39 @@ export class GameScene extends Phaser.Scene {
         'P2: Arrows move | Shift jump | . light | , heavy | / suck', {
         fontSize: '12px', color: '#666666', fontFamily: 'monospace',
       });
+      uiExtras.push(controlsP1, controlsP2);
 
       this.time.delayedCall(5000, () => {
         this.tweens.add({ targets: [controlsP1, controlsP2], alpha: 0, duration: 1000 });
       });
     }
+
+    // --- Camera setup: zoomed game view + unzoomed UI overlay ---
+    this.cameras.main.setZoom(1.2);
+    this.cameras.main.centerOn(CANVAS_W / 2, CANVAS_H / 2);
+
+    // Collect game-world objects for camera separation
+    const gameObjects: Phaser.GameObjects.GameObject[] = [
+      ...this.stageRenderer.getGameObjects(),
+    ];
+    for (const fr of this.fighterRenderers) {
+      gameObjects.push(...fr.getGameObjects());
+    }
+
+    // Collect UI objects (HUD, touch controls, controls text)
+    const uiObjects: Phaser.GameObjects.GameObject[] = [
+      ...this.hudRenderer.getGameObjects(),
+      ...uiExtras,
+    ];
+    if (this.touchInput) {
+      uiObjects.push(...this.touchInput.getGameObjects());
+    }
+
+    // Main camera (zoomed): renders only game world
+    this.cameras.main.ignore(uiObjects);
+
+    // UI camera (unzoomed): renders only HUD + controls
+    this.cameras.add(0, 0, CANVAS_W, CANVAS_H).ignore(gameObjects);
   }
 
   update(_time: number, delta: number): void {
